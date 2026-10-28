@@ -495,9 +495,75 @@ async function sendEditedMessage(text, replaceMessageId) {
   );
 }
 
+function createHistoryItem(conv) {
+  const item = document.createElement("div");
+  item.className = "ai-history-item" + (conv.isPinned ? " is-pinned" : "");
+  if (conv.id === currentConversationId) item.classList.add("active");
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "ai-history-btn";
+  btn.setAttribute("aria-label", `Open chat: ${conv.title || "New Chat"}`);
+
+  if (conv.isPinned) {
+    const pinBadge = document.createElement("span");
+    pinBadge.className = "ai-history-pin-badge";
+    pinBadge.setAttribute("aria-label", "Pinned chat");
+    pinBadge.title = "Pinned chat";
+    pinBadge.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M12 17v5" stroke-width="2.5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 0-2H8a1 1 0 0 0 0 2h1z"/></svg>`;
+    btn.append(pinBadge);
+  }
+
+  const titleSpan = document.createElement("span");
+  titleSpan.className = "ai-history-title";
+
+  if (animateTitleId === conv.id) {
+    typeWriterEffect(titleSpan, conv.title || "New Chat");
+  } else {
+    titleSpan.textContent = conv.title || "New Chat";
+    titleSpan.title = conv.title || "New Chat";
+  }
+
+  btn.append(titleSpan);
+  btn.addEventListener("click", () => selectConversation(conv.id));
+
+  const actions = document.createElement("div");
+  actions.className = "ai-history-actions";
+
+  const pinBtn = document.createElement("button");
+  pinBtn.type = "button";
+  pinBtn.className = "ai-history-pin-btn" + (conv.isPinned ? " is-pinned" : "");
+  pinBtn.title = conv.isPinned ? "Unpin chat" : "Pin chat to top";
+  pinBtn.setAttribute("aria-label", conv.isPinned ? "Unpin chat" : "Pin chat to top");
+  pinBtn.innerHTML = conv.isPinned
+    ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M12 17v5" stroke-width="2.5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 0-2H8a1 1 0 0 0 0 2h1z"/></svg>`
+    : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 0-2H8a1 1 0 0 0 0 2h1z"/></svg>`;
+  pinBtn.addEventListener("click", (e) => togglePinConversation(conv.id, e));
+
+  const delBtn = document.createElement("button");
+  delBtn.type = "button";
+  delBtn.className = "ai-history-delete-btn";
+  delBtn.title = "Delete chat";
+  delBtn.setAttribute("aria-label", "Delete chat");
+  delBtn.innerHTML = `×`;
+  delBtn.addEventListener("click", (e) => promptDeleteConversation(conv.id, e));
+
+  actions.append(pinBtn, delBtn);
+  item.append(btn, actions);
+  return item;
+}
+
 function renderConversationList() {
   if (!historyList) return;
   historyList.replaceChildren();
+
+  // Sort: pinned first, then newest updated_at first
+  conversations.sort((a, b) => {
+    if (Boolean(b.isPinned) !== Boolean(a.isPinned)) {
+      return b.isPinned ? 1 : -1;
+    }
+    return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+  });
 
   if (historyCount) {
     historyCount.textContent = conversations.length ? String(conversations.length) : "";
@@ -511,50 +577,63 @@ function renderConversationList() {
     return;
   }
 
-  for (const conv of conversations) {
-    const item = document.createElement("div");
-    item.className = "ai-history-item";
-    if (conv.id === currentConversationId) item.classList.add("active");
+  const pinnedList = conversations.filter((c) => c.isPinned);
+  const recentList = conversations.filter((c) => !c.isPinned);
 
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "ai-history-btn";
-    btn.setAttribute("aria-label", `Open chat: ${conv.title}`);
+  if (pinnedList.length > 0) {
+    const pinnedHeader = document.createElement("div");
+    pinnedHeader.className = "ai-history-group-header";
+    pinnedHeader.innerHTML = `<span>📌 PINNED</span><span class="ai-history-group-count">${pinnedList.length}</span>`;
+    historyList.append(pinnedHeader);
 
-    const titleSpan = document.createElement("span");
-    titleSpan.className = "ai-history-title";
-
-    if (animateTitleId === conv.id) {
-      typeWriterEffect(titleSpan, conv.title || "New Chat");
-    } else {
-      titleSpan.textContent = conv.title || "New Chat";
-      titleSpan.title = conv.title || "New Chat";
+    for (const conv of pinnedList) {
+      historyList.append(createHistoryItem(conv));
     }
 
-    btn.append(titleSpan);
-    btn.addEventListener("click", () => selectConversation(conv.id));
+    if (recentList.length > 0) {
+      const recentHeader = document.createElement("div");
+      recentHeader.className = "ai-history-group-header recent";
+      recentHeader.innerHTML = `<span>RECENT</span><span class="ai-history-group-count">${recentList.length}</span>`;
+      historyList.append(recentHeader);
+    }
+  }
 
-    const actions = document.createElement("div");
-    actions.className = "ai-history-actions";
+  for (const conv of recentList) {
+    historyList.append(createHistoryItem(conv));
+  }
+}
 
-    const delBtn = document.createElement("button");
-    delBtn.type = "button";
-    delBtn.className = "ai-history-delete-btn";
-    delBtn.title = "Delete chat";
-    delBtn.setAttribute("aria-label", "Delete chat");
-    delBtn.innerHTML = `×`;
-    delBtn.addEventListener("click", (e) => promptDeleteConversation(conv.id, e));
+async function togglePinConversation(id, event) {
+  event?.stopPropagation();
+  const conv = conversations.find((c) => c.id === id);
+  if (!conv) return;
+  const previousState = conv.isPinned;
+  // Optimistic UI update
+  conv.isPinned = !previousState;
+  renderConversationList();
 
-    actions.append(delBtn);
-    item.append(btn, actions);
-    historyList.append(item);
+  try {
+    const res = await api(`/api/ai/conversations/${encodeURIComponent(id)}/pin`, {
+      method: "PATCH",
+    });
+    conv.isPinned = Boolean(res.isPinned);
+    renderConversationList();
+    showToast(conv.isPinned ? "Chat pinned to top 📌" : "Chat unpinned");
+  } catch (err) {
+    conv.isPinned = previousState;
+    renderConversationList();
+    showToast(err.message || "Could not update pin state");
   }
 }
 
 async function loadConversations() {
   try {
     const result = await api("/api/ai/conversations");
-    conversations = Array.isArray(result) ? result : [];
+    const rawList = Array.isArray(result) ? result : (result?.conversations || []);
+    conversations = rawList.map((c) => ({
+      ...c,
+      isPinned: Boolean(c.isPinned ?? c.is_pinned),
+    }));
     renderConversationList();
   } catch (err) {
     console.error("Failed to load conversations:", err);

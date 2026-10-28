@@ -850,11 +850,49 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
-.ai-history-delete {
-  display: none;
-  width: 20px;
-  height: 20px;
-  place-items: center;
+.ai-history-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-align: left;
+}
+.ai-history-pin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple, #7558e8);
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.ai-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity .15s ease;
+  flex-shrink: 0;
+}
+.ai-history-item:hover .ai-history-actions,
+.ai-history-item:focus-within .ai-history-actions,
+.ai-history-item.is-pinned .ai-history-actions {
+  opacity: 1;
+}
+.ai-history-pin-btn,
+.ai-history-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   border: 0;
   border-radius: 5px;
   background: transparent;
@@ -863,14 +901,45 @@
   line-height: 1;
   cursor: pointer;
   transition: all .15s;
+  padding: 0;
 }
-.ai-history-item:hover .ai-history-delete,
-.ai-history-item:focus-within .ai-history-delete {
-  display: grid;
+.ai-history-pin-btn:hover {
+  color: var(--purple, #7558e8);
+  background: rgba(117, 88, 232, 0.12);
 }
-.ai-history-delete:hover {
+.ai-history-pin-btn.is-pinned {
+  color: var(--purple, #7558e8);
+}
+.ai-history-delete-btn:hover {
   color: #d25066;
   background: #ffebee;
+}
+.ai-history-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 6px 3px;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  color: #9ca0b2;
+  text-transform: uppercase;
+}
+.ai-history-group-header.recent {
+  margin-top: 10px;
+  border-top: 1px dashed rgba(160, 150, 200, 0.2);
+  padding-top: 8px;
+}
+.ai-history-group-count {
+  font-size: 10px;
+  background: rgba(140, 130, 200, 0.15);
+  padding: 1px 6px;
+  border-radius: 10px;
+  color: #7b7596;
+}
+.ai-history-item.is-pinned {
+  background: rgba(117, 88, 232, 0.04);
 }
 .ai-history-empty {
   padding: 30px 8px;
@@ -1180,4 +1249,37 @@
 :root[data-theme="dark"] .chat-edit-cancel:hover {
   background: #353145;
   color: #ffffff;
+}
+
+/* Pinned Chats - Dark Theme Overrides */
+:root[data-theme="dark"] .ai-history-group-header {
+  color: #8c889e !important;
+}
+:root[data-theme="dark"] .ai-history-group-header.recent {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+:root[data-theme="dark"] .ai-history-group-count {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #bfbcd1 !important;
+}
+:root[data-theme="dark"] .ai-history-item.is-pinned {
+  background: rgba(160, 130, 255, 0.08) !important;
+}
+:root[data-theme="dark"] .ai-history-pin-badge {
+  color: #caaeff !important;
+}
+:root[data-theme="dark"] .ai-history-pin-btn,
+:root[data-theme="dark"] .ai-history-delete-btn {
+  color: #9f9cb2 !important;
+}
+:root[data-theme="dark"] .ai-history-pin-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+:root[data-theme="dark"] .ai-history-pin-btn.is-pinned {
+  color: #caaeff !important;
+}
+:root[data-theme="dark"] .ai-history-delete-btn:hover {
+  background: rgba(255, 80, 80, 0.18) !important;
+  color: #ff7b88 !important;
 }

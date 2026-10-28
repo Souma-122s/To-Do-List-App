@@ -21,22 +21,41 @@ const router = Router();
 
 // Conversation List
 router.get("/api/ai/conversations", requireAuth, (req, res) => {
-  const conversations = db
-    .prepare("SELECT id, title, created_at AS createdAt, updated_at AS updatedAt FROM ai_conversations WHERE user_id = ? ORDER BY updated_at DESC LIMIT 50")
+  const rows = db
+    .prepare("SELECT id, title, is_pinned, created_at AS createdAt, updated_at AS updatedAt FROM ai_conversations WHERE user_id = ? ORDER BY is_pinned DESC, updated_at DESC LIMIT 50")
     .all(req.user.id);
+  const conversations = rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    isPinned: Boolean(r.is_pinned),
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  }));
   res.json({ conversations });
 });
 
 // Single Conversation Messages
 router.get("/api/ai/conversations/:id", requireAuth, (req, res) => {
   const conversation = db
-    .prepare("SELECT id, title, created_at AS createdAt, updated_at AS updatedAt FROM ai_conversations WHERE id = ? AND user_id = ?")
+    .prepare("SELECT id, title, is_pinned AS isPinned, created_at AS createdAt, updated_at AS updatedAt FROM ai_conversations WHERE id = ? AND user_id = ?")
     .get(req.params.id, req.user.id);
   if (!conversation) return res.status(404).json({ error: "Conversation not found." });
+  conversation.isPinned = Boolean(conversation.isPinned);
   const messages = db
     .prepare("SELECT id, role, content, content_html AS contentHtml, created_at AS createdAt FROM ai_messages WHERE conversation_id = ? ORDER BY id ASC")
     .all(conversation.id);
   res.json({ conversation, messages });
+});
+
+// Toggle Pin Conversation
+router.patch("/api/ai/conversations/:id/pin", requireAuth, requireCsrf, (req, res) => {
+  const conv = db
+    .prepare("SELECT id, is_pinned FROM ai_conversations WHERE id = ? AND user_id = ?")
+    .get(req.params.id, req.user.id);
+  if (!conv) return res.status(404).json({ error: "Conversation not found." });
+  const nextPinned = conv.is_pinned ? 0 : 1;
+  db.prepare("UPDATE ai_conversations SET is_pinned = ? WHERE id = ?").run(nextPinned, conv.id);
+  res.json({ id: conv.id, isPinned: Boolean(nextPinned) });
 });
 
 // Delete Conversation

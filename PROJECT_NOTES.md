@@ -458,5 +458,11 @@ When you are ready to deploy Daylight online for real users, keep these **essent
   - Added official MIT License file (`LICENSE`) with copyright to Soumapriya Roy.
   - Upgraded README with shields.io badges, feature tables, architecture tree, and quickstart guide.
 
+- [x] **Pin the Chat (📌) Feature Complete**:
+  - **Database Migration:** Added `is_pinned INTEGER NOT NULL DEFAULT 0` column to `ai_conversations` table in `server/db.js` with composite index `ai_conversations_user_pin_idx(user_id, is_pinned DESC, updated_at DESC)`.
+  - **Backend API:** Updated `GET /api/ai/conversations` and `GET /api/ai/conversations/:id` to include `isPinned` boolean and sort pinned conversations to top. Added `PATCH /api/ai/conversations/:id/pin` endpoint with CSRF and auth protection.
+  - **Frontend UI & Interactions:** In `ai.js`, implemented `togglePinConversation()` with optimistic UI updates and instant toast notifications. Grouped pinned chats under a dedicated `📌 PINNED` section header at the top of the sidebar.
+  - **Styling:** Added `.ai-history-pin-btn`, `.ai-history-pin-badge`, and `.ai-history-group-header` styling in `styles/ai.css` with full light/dark theme support.
+
 ---
-*Created for your personal notebook. Rest up, refuel, and we will dive into Pin the Chat and Voice Audio!*
+*Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*

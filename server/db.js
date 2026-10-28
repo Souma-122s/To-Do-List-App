@@ -87,6 +87,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS ai_messages_conv_idx ON ai_messages(conversation_id, id ASC);
 `);
 
+// Ensure ai_conversations table has is_pinned column
+const aiConvCols = db.prepare("PRAGMA table_info(ai_conversations)").all();
+if (!aiConvCols.some((col) => col.name === "is_pinned")) {
+  db.exec("ALTER TABLE ai_conversations ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0");
+}
+db.exec("CREATE INDEX IF NOT EXISTS ai_conversations_user_pin_idx ON ai_conversations(user_id, is_pinned DESC, updated_at DESC);");
+
 // Session Store
 export class SQLiteSessionStore extends session.Store {
   get(sid, callback) {
