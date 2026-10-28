@@ -123,7 +123,10 @@ router.post("/api/ai/chat", requireAuth, requireCsrf, aiLimiter, async (req, res
       : "The user has no tasks on their to-do list right now.";
 
   const requestedModel = typeof req.body?.model === "string" ? req.body.model.trim() : null;
-  const currentModel = requestedModel && ALLOWED_MODELS.includes(requestedModel) ? requestedModel : aiModel;
+  let currentModel = requestedModel && ALLOWED_MODELS.includes(requestedModel) ? requestedModel : aiModel;
+  if (currentModel === "gemini-3.5-flash" || currentModel === "gemini-3.1-flash-lite") {
+    currentModel = "gemini-3-flash-preview";
+  }
 
   const wantStream = Boolean(req.body?.stream);
 

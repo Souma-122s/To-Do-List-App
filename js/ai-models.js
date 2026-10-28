@@ -9,8 +9,16 @@ const MODEL_DETAILS = {
   "gemini-3.5-flash": { name: "Gemini 3.5 Flash", icon: "🧠" }
 };
 
-let currentSelectedModel = localStorage.getItem("daylight_ai_model") || "gemini-3-flash-preview";
-if (!MODEL_DETAILS[currentSelectedModel] || currentSelectedModel === "gemini-3.1-flash-lite") {
+let currentSelectedModel = "gemini-3-flash-preview";
+try {
+  const saved = localStorage.getItem("daylight_ai_model");
+  if (saved === "gemini-3-flash-preview") {
+    currentSelectedModel = saved;
+  } else {
+    localStorage.setItem("daylight_ai_model", "gemini-3-flash-preview");
+    currentSelectedModel = "gemini-3-flash-preview";
+  }
+} catch {
   currentSelectedModel = "gemini-3-flash-preview";
 }
 
