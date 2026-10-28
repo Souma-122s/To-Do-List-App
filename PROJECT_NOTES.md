@@ -484,5 +484,10 @@ When you are ready to deploy Daylight online for real users, keep these **essent
   - **Single Free API Key Truth:** Confirmed and verified that all 3 models work with the user's existing free `GEMINI_API_KEY` from Google AI Studio with \$0 cost and generous rate limits (15 RPM, 1,500 RPD).
   - **Zero Rate Limits:** All artificial request limits removed from server endpoints.
 
+- [x] **Recent Chat One-Click Selection & Responsiveness Fix**:
+  - **Diagnosed Root Cause:** Clicks landing on the padding/margins of `.ai-history-item` were ignored because the click listener was bound only to the inner `.ai-history-btn`, creating dead zones. Furthermore, `.active` highlighting only triggered after the async network fetch resolved, causing noticeable delay where users clicked multiple times.
+  - **Zero-Deadzone Click Delegation:** Bound the click listener to the entire `.ai-history-item` container, added `pointer-events: none` on the inner `.ai-history-btn`, and added `e.stopPropagation()` on pin and delete buttons.
+  - **Instant Optimistic Feedback:** The selected chat item immediately highlights on the first click, clears the view with an animated `✳ Loading conversation...` notice, and smoothly renders conversation messages. Prevents duplicate requests if already selected.
+
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*
