@@ -120,6 +120,14 @@ function addMessage(role, text, { typing = false, html = "", id = null } = {}) {
   message.dataset.role = role;
   message.dataset.rawText = text;
 
+  if (role === "assistant") {
+    const avatar = document.createElement("div");
+    avatar.className = "message-avatar ai-assistant-avatar";
+    avatar.setAttribute("aria-hidden", "true");
+    avatar.innerHTML = `<span class="avatar-spark">✳</span>`;
+    message.append(avatar);
+  }
+
   const bubbleWrap = document.createElement("div");
   bubbleWrap.className = "chat-bubble-wrap";
 
@@ -337,6 +345,12 @@ function enterEditMode(messageElement, contentElement, actionsElement) {
 function startThinkingIndicator() {
   const message = document.createElement("article");
   message.className = "chat-message assistant-message chat-typing";
+
+  const avatar = document.createElement("div");
+  avatar.className = "message-avatar ai-assistant-avatar";
+  avatar.setAttribute("aria-hidden", "true");
+  avatar.innerHTML = `<span class="avatar-spark">✳</span>`;
+  message.append(avatar);
 
   const bubbleWrap = document.createElement("div");
   bubbleWrap.className = "chat-bubble-wrap";

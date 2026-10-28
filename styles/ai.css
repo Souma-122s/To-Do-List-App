@@ -240,15 +240,29 @@
 }
 .ai-chat-messages .message-avatar {
   display: grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   place-items: center;
   border-radius: 9px;
   color: #795be9;
   background: #f0edff;
-  font-size: 15px;
+  border: 1px solid rgba(121, 91, 233, 0.16);
+  box-shadow: 0 2px 6px rgba(121, 91, 233, 0.1);
+  font-size: 16px;
+  line-height: 1;
   margin-top: 2px;
+  user-select: none;
+}
+.ai-chat-messages .message-avatar .avatar-spark {
+  display: inline-block;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--purple, #795be9);
+  transition: transform .25s ease;
+}
+.ai-chat-messages .chat-message:hover .avatar-spark {
+  transform: rotate(20deg) scale(1.08);
 }
 .ai-chat-messages .user-message {
   align-self: flex-end;
@@ -1285,8 +1299,13 @@
 }
 
 :root[data-theme="dark"] .ai-chat-messages .message-avatar {
-  background: #353047;
-  color: #d1c7ff;
+  background: #2a2638;
+  border-color: rgba(180, 150, 255, 0.2);
+  color: #caaeff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+:root[data-theme="dark"] .ai-chat-messages .message-avatar .avatar-spark {
+  color: #caaeff;
 }
 
 :root[data-theme="dark"] .assistant-message .chat-message-content,
