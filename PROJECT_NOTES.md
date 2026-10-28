@@ -472,5 +472,7 @@ When you are ready to deploy Daylight online for real users, keep these **essent
   - *Fix:* Set `.chat-message-content { flex: none; width: auto; }` and `.user-message p { width: auto; max-width: 100%; }`. Short messages now stay cleanly on one single line, and only wrap when exceeding 75% width, exactly like ChatGPT.
 - *Performance & Polish:* Switched default AI model to **`gemini-3-flash-preview`** and auto-migrated legacy cached models (benchmark: ~1.3s response time vs ~20-30s on 3.5-flash). Added animated glowing Daylight brand symbol (`✳`) in hero screen and custom animated rotating mark with bouncing wave dots for the thinking indicator.
 
+- *UI Polish:* Added Daylight logo avatar badge (`✳`) to every assistant message and thinking indicator with dark/light mode theme support.
+
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*
