@@ -464,5 +464,9 @@ When you are ready to deploy Daylight online for real users, keep these **essent
   - **Frontend UI & Interactions:** In `ai.js`, implemented `togglePinConversation()` with optimistic UI updates and instant toast notifications. Grouped pinned chats under a dedicated `📌 PINNED` section header at the top of the sidebar.
   - **Styling:** Added `.ai-history-pin-btn`, `.ai-history-pin-badge`, and `.ai-history-group-header` styling in `styles/ai.css` with full light/dark theme support.
 
+- *Bug:* `Failed to execute 'json' on 'Response': Unexpected end of JSON input` on deleting AI conversation.
+  - *Cause:* `DELETE /api/ai/conversations/:id` returned `204 No Content`, causing `response.json()` to fail on empty response body. Frontend error handling halted sidebar state refresh.
+  - *Fix:* Updated server route to return `{ ok: true, id }` and updated client `api()` to safely check `response.status === 204` and `response.text()` before parsing JSON. Added fallback in `confirmDeleteConversation()` to clean up local state if server already deleted the record.
+
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*
