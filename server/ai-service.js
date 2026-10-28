@@ -52,6 +52,11 @@ export const createTasksTool = {
 };
 
 export const ALLOWED_MODELS = [
+  "gemini-3.8-flash-high",
+  "claude-sonnet-4.6",
+  "claude-opus-4.6",
+  "gpt-oss-120b",
+  "gemini-4-argon",
   "gemini-3-flash-preview",
   "gemini-3.5-flash-lite",
   "gemini-3.5-flash",

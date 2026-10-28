@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="theme.js"></script>
-    <link rel="stylesheet" href="styles.css?v=5.3" />
-    <script src="js/ai-models.js?v=2.3" defer></script>
+    <link rel="stylesheet" href="styles.css?v=5.4" />
+    <script src="js/ai-models.js?v=3.0" defer></script>
     <script src="js/ai-voice.js?v=4.6" defer></script>
     <script src="js/ai-account.js?v=2.0" defer></script>
-    <script src="ai.js?v=5.3" defer></script>
+    <script src="ai.js?v=5.4" defer></script>
   </head>
   <body class="ai-page">
     <!-- Premium Full-Screen Intro Screen -->
@@ -143,38 +143,165 @@
               <label class="visually-hidden" for="ai-chat-input">Message Daylight AI</label>
               <textarea id="ai-chat-input" rows="1" maxlength="1000" placeholder="Ask Daylight anything or plan your tasks…" required></textarea>
               <div class="ai-form-actions">
+                <!-- Attachment / Add Context Button -->
+                <div class="ai-attach-picker" id="ai-attach-picker">
+                  <button type="button" class="ai-attach-btn" id="ai-attach-btn" aria-haspopup="true" aria-expanded="false" title="Add task context or reference" aria-label="Add context">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                  <div class="ai-attach-dropdown" id="ai-attach-dropdown" hidden>
+                    <div class="ai-attach-header">ATTACH CONTEXT</div>
+                    <button type="button" class="ai-attach-option" data-action="attach-tasks">
+                      <span class="attach-opt-icon">📋</span>
+                      <div class="attach-opt-body">
+                        <div class="attach-opt-title">Current Active Tasks</div>
+                        <div class="attach-opt-desc">Include your to-do items as context for planning.</div>
+                      </div>
+                    </button>
+                    <button type="button" class="ai-attach-option" data-action="prioritize-tasks">
+                      <span class="attach-opt-icon">🎯</span>
+                      <div class="attach-opt-body">
+                        <div class="attach-opt-title">Prioritization Prompt</div>
+                        <div class="attach-opt-desc">Ask Daylight what to focus on first today.</div>
+                      </div>
+                    </button>
+                    <button type="button" class="ai-attach-option" data-action="breakdown-tasks">
+                      <span class="attach-opt-icon">✂️</span>
+                      <div class="attach-opt-body">
+                        <div class="attach-opt-title">Task Breakdown Prompt</div>
+                        <div class="attach-opt-desc">Split large tasks into quick bite-sized steps.</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 <!-- Choose Model Dropdown inside the Chat Box! -->
                 <div class="ai-model-picker" id="ai-model-picker">
                   <button type="button" class="ai-model-btn" id="ai-model-btn" aria-haspopup="listbox" aria-expanded="false" title="Choose AI model">
-                    <span class="ai-model-icon" id="selected-model-icon">⚡</span>
-                    <span class="ai-model-name" id="selected-model-name">Gemini 3 Flash</span>
-                    <span class="ai-model-chevron" aria-hidden="true">▾</span>
+                    <span class="ai-model-name" id="selected-model-name">Gemini 3.8 Flash High</span>
+                    <span class="ai-model-chevron" aria-hidden="true">⌃</span>
                   </button>
-                  <div class="ai-model-dropdown" id="ai-model-dropdown" role="listbox" hidden>
-                    <div class="ai-model-dropdown-header">CHOOSE MODEL</div>
-                    
-                    <div class="ai-model-option active" role="option" data-model="gemini-3-flash-preview" aria-selected="true">
-                      <div class="ai-model-option-top">
-                        <span class="ai-model-option-title">⚡ Gemini 3 Flash</span>
-                        <span class="ai-model-badge fast">Ultra Fast · ~1s</span>
+
+                  <div class="ai-model-dropdown-wrapper" id="ai-model-dropdown" hidden>
+                    <!-- Main Model Selection Pane -->
+                    <div class="ai-model-dropdown-pane" role="listbox">
+                      <!-- 1. Gemini 3.8 Flash High -->
+                      <div class="ai-model-option active" role="option" data-model="gemini-3.8-flash-high" aria-selected="true">
+                        <span class="ai-model-check">✓</span>
+                        <span class="ai-model-title">Gemini 3.8 Flash High</span>
                       </div>
-                      <div class="ai-model-option-desc">Instant real-time streaming, lowest latency, agile everyday chatting.</div>
+
+                      <!-- 2. Claude Sonnet 4.6 (Thinking) -->
+                      <div class="ai-model-option" role="option" data-model="claude-sonnet-4.6" aria-selected="false">
+                        <span class="ai-model-check"></span>
+                        <span class="ai-model-title">Claude Sonnet 4.6 (Thinking)</span>
+                        <span class="ai-model-tag notice" title="Notice: Hybrid reasoning model">Notice <span class="tag-info">ⓘ</span></span>
+                      </div>
+
+                      <!-- 3. Claude Opus 4.6 (Thinking) -->
+                      <div class="ai-model-option" role="option" data-model="claude-opus-4.6" aria-selected="false">
+                        <span class="ai-model-check"></span>
+                        <span class="ai-model-title">Claude Opus 4.6 (Thinking)</span>
+                        <span class="ai-model-tag notice" title="Notice: Deep intelligence model">Notice <span class="tag-info">ⓘ</span></span>
+                      </div>
+
+                      <!-- 4. GPT-OSS 120B (Medium) -->
+                      <div class="ai-model-option" role="option" data-model="gpt-oss-120b" aria-selected="false">
+                        <span class="ai-model-check"></span>
+                        <span class="ai-model-title">GPT-OSS 120B (Medium)</span>
+                        <span class="ai-model-tag notice" title="Notice: Medium reasoning mode">Notice <span class="tag-info">ⓘ</span></span>
+                      </div>
+
+                      <!-- 5. Gemini 4 Argon -->
+                      <div class="ai-model-option is-disabled" role="option" data-model="gemini-4-argon" aria-selected="false" aria-disabled="true">
+                        <span class="ai-model-check"></span>
+                        <span class="ai-model-title">Gemini 4 Argon</span>
+                        <span class="ai-model-tag unavailable" title="Unavailable: Preview model not available">Unavailable <span class="tag-info">ⓘ</span></span>
+                      </div>
+
+                      <!-- Menu Divider -->
+                      <div class="ai-model-menu-divider"></div>
+
+                      <!-- View Usage Trigger -->
+                      <div class="ai-model-usage-trigger" id="ai-model-usage-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
+                        <div class="ai-model-usage-left">
+                          <span class="ai-usage-icon">📈</span>
+                          <span class="ai-usage-label">View Usage</span>
+                        </div>
+                        <span class="ai-usage-arrow">›</span>
+                      </div>
                     </div>
 
-                    <div class="ai-model-option" role="option" data-model="gemini-3.5-flash-lite" aria-selected="false">
-                      <div class="ai-model-option-top">
-                        <span class="ai-model-option-title">⚖️ Gemini 3.5 Flash Lite</span>
-                        <span class="ai-model-badge balanced">Balanced</span>
+                    <!-- View Usage Flyout Submenu Panel -->
+                    <div class="ai-usage-flyout-pane" id="ai-usage-flyout" aria-label="Model usage and quotas">
+                      <div class="usage-flyout-header">
+                        <button type="button" class="usage-back-btn" id="usage-back-btn" aria-label="Back to models">‹ Back</button>
+                        <span class="usage-flyout-title">Usage</span>
                       </div>
-                      <div class="ai-model-option-desc">Light reasoning for structured planning, step breakdown, and tasks.</div>
-                    </div>
 
-                    <div class="ai-model-option" role="option" data-model="gemini-3.5-flash" aria-selected="false">
-                      <div class="ai-model-option-top">
-                        <span class="ai-model-option-title">🧠 Gemini 3.5 Flash</span>
-                        <span class="ai-model-badge thinking">Deep Thinking</span>
+                      <!-- Gemini Models Group -->
+                      <div class="usage-group">
+                        <div class="usage-group-title">Gemini Models</div>
+                        
+                        <div class="usage-metric-row">
+                          <div class="usage-metric-text">
+                            <span class="usage-metric-name">Weekly limit</span>
+                            <span class="usage-metric-sub"><strong class="usage-metric-val">74%</strong> left · Resets in 4d 15h</span>
+                          </div>
+                          <div class="usage-meter-circle">
+                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
+                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                              <path class="usage-ring-fill" stroke-dasharray="74, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            </svg>
+                          </div>
+                        </div>
+
+                        <div class="usage-metric-row">
+                          <div class="usage-metric-text">
+                            <span class="usage-metric-name">5h limit</span>
+                            <span class="usage-metric-sub"><strong class="usage-metric-val">85%</strong> left · Resets in 2h 18m</span>
+                          </div>
+                          <div class="usage-meter-circle">
+                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
+                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                              <path class="usage-ring-fill" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            </svg>
+                          </div>
+                        </div>
                       </div>
-                      <div class="ai-model-option-desc">Chain-of-thought reasoning for complex problem solving, coding, & logic.</div>
+
+                      <!-- Claude & GPT Models Group -->
+                      <div class="usage-group">
+                        <div class="usage-group-title">Claude and GPT models</div>
+
+                        <div class="usage-metric-row">
+                          <div class="usage-metric-text">
+                            <span class="usage-metric-name">Weekly limit</span>
+                            <span class="usage-metric-sub"><strong class="usage-metric-val">100%</strong> left · Resets in 7d</span>
+                          </div>
+                          <div class="usage-meter-circle">
+                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
+                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                              <path class="usage-ring-fill" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            </svg>
+                          </div>
+                        </div>
+
+                        <div class="usage-metric-row">
+                          <div class="usage-metric-text">
+                            <span class="usage-metric-name">5h limit</span>
+                            <span class="usage-metric-sub"><strong class="usage-metric-val">100%</strong> left · Resets in 5h</span>
+                          </div>
+                          <div class="usage-meter-circle">
+                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
+                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                              <path class="usage-ring-fill" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

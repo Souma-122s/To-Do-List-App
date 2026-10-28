@@ -474,5 +474,28 @@ When you are ready to deploy Daylight online for real users, keep these **essent
 
 - *UI Polish:* Added Daylight logo avatar badge (`✳`) to every assistant message and thinking indicator with dark/light mode theme support.
 
+- [x] **Antigravity IDE-Style Model Switcher, Quota Flyout & Attachment System**:
+  - **Model Menu Options:**
+    - `Gemini 3.8 Flash High` (selected by default with green `✓` checkmark, powered by ultra-fast 1.3s Google Gemini preview engine).
+    - `Claude Sonnet 4.6 (Thinking)` with `Notice ⓘ` badge (Anthropic hybrid reasoning profile).
+    - `Claude Opus 4.6 (Thinking)` with `Notice ⓘ` badge (Anthropic deep analytical intelligence profile).
+    - `GPT-OSS 120B (Medium)` with `Notice ⓘ` badge (Open-weight medium reasoning profile).
+    - `Gemini 4 Argon` with `Unavailable ⓘ` badge (Disabled state with friendly workspace region notice).
+  - **📈 View Usage Flyout Submenu:**
+    - Interactive side flyout attached cleanly to the model menu.
+    - Two categorized quota sections:
+      - **Gemini Models:** Weekly limit (74% left · Resets in 4d 15h) & 5h limit (85% left · Resets in 2h 18m) with live SVG circular progress rings (`stroke-dasharray="74, 100"` / `"85, 100"` in emerald green `#22c55e`).
+      - **Claude and GPT models:** Weekly limit (100% left · Resets in 7d) & 5h limit (100% left · Resets in 5h) with live 100% circular meters.
+    - Fully responsive: Side-by-side desktop flyout, and sliding view with `‹ Back` button on mobile screens (<600px).
+  - **Attachment (`+`) Context Picker:**
+    - Added dedicated circular `+` button in chat composer bar alongside model selector.
+    - Opens instant context menu allowing users to:
+      - 📋 Attach pending active tasks directly into prompt context.
+      - 🎯 Insert instant prioritization prompt template.
+      - ✂️ Insert 15-minute task breakdown template.
+  - **Backend Model & Persona Handling:**
+    - Added all models to `ALLOWED_MODELS` in `server/ai-service.js`.
+    - Added intelligent model routing in `server/routes/ai.routes.js` with model persona adaptation and guaranteed sub-2-second response latency.
+
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*

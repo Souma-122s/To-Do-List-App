@@ -124,7 +124,25 @@ router.post("/api/ai/chat", requireAuth, requireCsrf, aiLimiter, async (req, res
 
   const requestedModel = typeof req.body?.model === "string" ? req.body.model.trim() : null;
   let currentModel = requestedModel && ALLOWED_MODELS.includes(requestedModel) ? requestedModel : aiModel;
-  if (currentModel === "gemini-3.5-flash" || currentModel === "gemini-3.1-flash-lite") {
+
+  let modelPersona = "";
+  if (requestedModel === "claude-sonnet-4.6") {
+    modelPersona = "\n\nMODEL PERSONA: You are operating with Claude Sonnet 4.6 hybrid reasoning. Deliver nuanced, articulate, well-structured, and deeply thoughtful assistance.";
+  } else if (requestedModel === "claude-opus-4.6") {
+    modelPersona = "\n\nMODEL PERSONA: You are operating with Claude Opus 4.6 deep intelligence. Provide thorough, multi-faceted analysis, rigorous logic, and architectural clarity.";
+  } else if (requestedModel === "gpt-oss-120b") {
+    modelPersona = "\n\nMODEL PERSONA: You are operating with GPT-OSS 120B medium reasoning. Emphasize crisp, direct, step-by-step logic, code, and structured execution.";
+  }
+
+  if (
+    currentModel === "gemini-3.8-flash-high" ||
+    currentModel === "gemini-3.5-flash" ||
+    currentModel === "gemini-3.1-flash-lite" ||
+    currentModel === "claude-sonnet-4.6" ||
+    currentModel === "claude-opus-4.6" ||
+    currentModel === "gpt-oss-120b" ||
+    currentModel === "gemini-4-argon"
+  ) {
     currentModel = "gemini-3-flash-preview";
   }
 
@@ -159,7 +177,7 @@ CURRENT USER TASKS:
 ${taskContext}
 
 - You can answer questions about general topics, games, coding, writing, problem-solving, or their tasks.
-- Only add items to the user's Daylight task list when they explicitly ask you to add or create tasks there; suggesting or discussing a plan is not permission. When explicitly asked, call add_tasks_to_daylight with concise actionable task titles. Do not claim to change the list except through the tool. Never request passwords, access tokens, or sensitive personal information.`,
+- Only add items to the user's Daylight task list when they explicitly ask you to add or create tasks there; suggesting or discussing a plan is not permission. When explicitly asked, call add_tasks_to_daylight with concise actionable task titles. Do not claim to change the list except through the tool. Never request passwords, access tokens, or sensitive personal information.${modelPersona}`,
           },
           ...previousHistory,
           { role: "user", content: message },
@@ -292,7 +310,7 @@ CURRENT USER TASKS:
 ${taskContext}
 
 - You can answer questions about general topics, games, coding, writing, problem-solving, or their tasks.
-- Only add items to the user's Daylight task list when they explicitly ask you to add or create tasks there; suggesting or discussing a plan is not permission. When explicitly asked, call add_tasks_to_daylight with concise actionable task titles. Do not claim to change the list except through the tool. Never request passwords, access tokens, or sensitive personal information.`,
+- Only add items to the user's Daylight task list when they explicitly ask you to add or create tasks there; suggesting or discussing a plan is not permission. When explicitly asked, call add_tasks_to_daylight with concise actionable task titles. Do not claim to change the list except through the tool. Never request passwords, access tokens, or sensitive personal information.${modelPersona}`,
         },
         ...previousHistory,
         { role: "user", content: message },

@@ -401,7 +401,7 @@ async function streamAiResponse(payload, { userMsgElement = null, wasNewChat = f
   if (sendButton) sendButton.disabled = true;
   form.setAttribute("aria-busy", "true");
 
-  const selectedModel = window.DaylightModels ? window.DaylightModels.getCurrentModel() : "gemini-3.1-flash-lite";
+  const selectedModel = window.DaylightModels ? window.DaylightModels.getCurrentModel() : "gemini-3.8-flash-high";
 
   try {
     const response = await fetch("/api/ai/chat", {
