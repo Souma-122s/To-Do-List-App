@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f7fb" />
+    <title>Daylight — Your to-do list</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="theme.js"></script>
+    <link rel="stylesheet" href="styles.css?v=3.6" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell" id="app-shell" hidden>
+      <aside class="sidebar">
+        <a class="brand" href="#" aria-label="Daylight home">
+          <span class="brand-mark" aria-hidden="true">✳</span>
+          <span>daylight<span class="brand-period">.</span></span>
+        </a>
+
+        <div class="workspace-label">WORKSPACE</div>
+        <nav class="nav-list" aria-label="Task filters">
+          <button class="nav-item active" type="button" data-filter="all">
+            <span class="nav-icon" aria-hidden="true">▦</span><span>My tasks</span><span class="nav-count" id="all-count">0</span>
+          </button>
+          <button class="nav-item" type="button" data-filter="active">
+            <span class="nav-icon" aria-hidden="true">◷</span><span>In progress</span><span class="nav-count" id="active-count">0</span>
+          </button>
+          <button class="nav-item" type="button" data-filter="completed">
+            <span class="nav-icon" aria-hidden="true">✓</span><span>Completed</span><span class="nav-count" id="completed-count">0</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-note">
+          <div class="note-sparkle" aria-hidden="true">✦</div>
+          <p class="note-title">Small steps add up.</p>
+          <p class="note-copy">A little progress each day goes a long way.</p>
+        </div>
+        <div class="sidebar-footer"><span class="online-dot"></span><span id="storage-status">Your tasks sync to this account</span></div>
+      </aside> 
+
+      <section class="main-panel" aria-labelledby="page-title">
+        <header class="topbar">
+          <span class="date-label" id="today-label"></span>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
+            <svg class="theme-icon theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6a8.6 8.6 0 1 0 11.6 11.6Z" /></svg>
+            <svg class="theme-icon theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
+          </button>
+          <div class="account-controls" id="account-controls" hidden>
+            <span class="account-name" id="account-name"></span>
+            <div class="account-menu-wrap">
+              <button class="avatar" id="account-menu-button" type="button" aria-label="Open Daylight account menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="account-popover">Y</button>
+              <section class="account-popover" id="account-popover" role="dialog" aria-label="Daylight account" hidden>
+                <div class="popover-heading"><div><strong>Daylight account</strong><span>Manage your sign-in options</span></div><button class="popover-close" id="close-account-popover" type="button" aria-label="Close account menu">×</button></div>
+                <div class="current-account-card"><span class="account-avatar-small" id="popover-avatar">Y</span><div><strong id="popover-name"></strong><span id="popover-email"></span></div><span class="current-badge">CURRENT</span></div>
+                <div class="connected-heading">CONNECTED SIGN-IN OPTIONS</div>
+                <div class="linked-account-list" id="linked-account-list"></div>
+                <div class="connect-actions" id="connect-actions"></div>
+                <div class="saved-accounts" id="saved-accounts" hidden><div class="connected-heading">ACCOUNTS ON THIS DEVICE</div><div id="saved-account-list"></div></div>
+                <div class="account-menu-actions">
+                  <button type="button" id="switch-account-button">＋ Add or switch account</button>
+                  <button type="button" id="sign-out-all-button">Sign out of all accounts</button>
+                </div>
+                <p class="account-menu-note">Social sign-in links a provider to your current Daylight account. Your tasks stay together.</p>
+              </section>
+            </div>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">YOUR PERSONAL SPACE</p>
+              <h1 id="page-title">Make room for <span>what matters.</span></h1>
+              <p class="subheading">One thing at a time. You’ve got this.</p>
+            </div>
+            <div class="progress-card" aria-live="polite">
+              <div class="progress-ring" id="progress-ring"><span id="progress-value">0%</span></div>
+              <div><strong id="progress-title">Fresh start</strong><small id="progress-caption">Let’s make today count</small></div>
+            </div>
+          </div>
+
+          <form class="task-form" id="task-form">
+            <span class="form-plus" aria-hidden="true">＋</span>
+            <label class="visually-hidden" for="task-input">What needs to get done?</label>
+            <input id="task-input" name="task" type="text" maxlength="140" placeholder="What needs to get done?" autocomplete="off" required />
+            <button type="submit">Add task <span aria-hidden="true">↗</span></button>
+          </form>
+
+          <a class="ai-launch-card" href="/ask-ai">
+            <span class="ai-launch-icon" aria-hidden="true">✦</span>
+            <span class="ai-launch-copy"><strong>Ask Daylight AI</strong><small>A friendly space to ask, explore ideas, and get help with anything on your mind.</small></span>
+            <span class="ai-launch-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <div class="list-toolbar">
+            <div><h2 id="list-title">Today’s focus</h2><span class="list-subtitle" id="list-subtitle">Your tasks, all in one place</span></div>
+            <button class="clear-button" id="clear-completed" type="button" hidden>Clear completed</button>
+          </div>
+
+          <ul class="task-list" id="task-list" aria-label="To-do list"></ul>
+          <div class="empty-state" id="empty-state">
+            <div class="empty-illustration" aria-hidden="true"><span>✓</span></div>
+            <h3 id="empty-title">A clean slate.</h3>
+            <p id="empty-copy">Add your first task above and get the momentum going.</p>
+          </div>
+          <footer class="list-footer"><span id="footer-count">0 tasks</span><span>Progress, not perfection <span class="footer-heart">♥</span></span></footer>
+        </div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <section class="auth-gate" id="auth-gate" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
+      <div class="auth-card" id="auth-card" data-mode="login">
+        <div class="auth-intro">
+          <a class="brand auth-bwrand" href="#" aria-label="Daylight home"><span class="brand-mark" aria-hidden="true">✳</span><span>daylight<span class="brand-period">.</span></span></a>
+          <p class="auth-eyebrow">A LITTLE MORE SPACE FOR WHAT MATTERS</p>
+          <h1 id="auth-title">Your day, <span>in good hands.</span></h1>
+          <p class="auth-description" id="auth-description">Log in to keep your tasks safe and plan with Daylight AI.</p>
+        </div>
+        <div class="auth-options">
+          <div class="auth-tabs" id="auth-tabs" data-mode="login" role="tablist" aria-label="Account access">
+            <button class="auth-tab active" id="login-tab" type="button" role="tab" aria-selected="true">Log in</button>
+            <button class="auth-tab" id="register-tab" type="button" role="tab" aria-selected="false">Sign up</button>
+          </div>
+          <form id="auth-form" class="auth-form">
+          <label for="auth-name" id="auth-name-label" hidden>Your name</label>
+          <input id="auth-name" name="name" type="text" autocomplete="name" placeholder="Your name" maxlength="80" hidden />
+          <label for="auth-email">Email address</label>
+          <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required />
+          <label for="auth-password">Password</label>
+          <div class="password-field">
+            <input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="Your password" minlength="10" maxlength="128" required />
+            <button class="password-toggle" id="password-toggle" type="button" aria-label="Show password" aria-pressed="false" title="Show password">
+              <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <label class="remember-me-option" for="remember-me">
+            <input id="remember-me" name="rememberMe" type="checkbox" />
+            <span class="remember-me-check" aria-hidden="true"></span>
+            <span class="remember-me-label">Remember me</span>
+          </label>
+          <button class="auth-submit" id="auth-submit" type="submit">Log in <span aria-hidden="true">↗</span></button>
+          <p class="auth-error" id="auth-error" role="alert" hidden></p>
+          </form>
+          <div class="auth-divider" id="auth-divider"><span>OR</span></div>
+          <div class="oauth-buttons" id="auth-oauth-buttons">
+          <button class="oauth-button provider-oauth" id="google-signin" type="button" data-provider="google"><svg class="social-logo google-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.88c-.58 2.96-2.25 5.48-4.73 7.18l7.69 5.97c4.49-4.14 7.14-10.24 7.14-17.62Z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.94-2.13 15.92-5.82l-7.69-5.97c-2.13 1.43-4.86 2.27-8.23 2.27-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/></svg><span>Sign in with Google Account</span></button>
+          <button class="oauth-button facebook-button provider-oauth" id="facebook-signin" type="button" data-provider="facebook"><svg class="social-logo facebook-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.093 10.125 24v-8.438H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.931-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.093 24 18.1 24 12.073Z"/></svg><span>Sign in with Facebook Account</span></button>
+          </div>
+          <p class="auth-privacy">Your account and tasks are stored securely in Daylight. We never put your AI key in the browser.</p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

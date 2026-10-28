@@ -1,0 +1,12 @@
+/* ==========================================================================
+   Daylight App Master Stylesheet
+   Modularized into dedicated domain stylesheets under /styles
+   ========================================================================== */
+
+@import "styles/base.css";
+@import "styles/auth.css";
+@import "styles/account.css";
+@import "styles/tasks.css";
+@import "styles/intro.css";
+@import "styles/ai.css";
+@import "styles/ai-controls.css";

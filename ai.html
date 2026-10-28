@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f7fb" />
+    <title>Ask Daylight AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="theme.js"></script>
+    <link rel="stylesheet" href="styles.css?v=4.6" />
+    <script src="js/ai-models.js?v=2.0" defer></script>
+    <script src="js/ai-voice.js?v=4.6" defer></script>
+    <script src="js/ai-account.js?v=2.0" defer></script>
+    <script src="ai.js?v=4.6" defer></script>
+  </head>
+  <body class="ai-page">
+    <!-- Premium Full-Screen Intro Screen -->
+    <div class="daylight-intro" id="daylight-intro" aria-hidden="true">
+      <div class="intro-ambient-glow"></div>
+      <div class="intro-content">
+        <div class="intro-icon-wrap">
+          <span class="intro-mark">✳</span>
+          <div class="intro-ripple"></div>
+        </div>
+        <div class="intro-brand">
+          <span>daylight</span><span class="intro-dot">.</span>
+        </div>
+        <div class="intro-badge">
+          <span class="intro-badge-shimmer"></span>
+          <span class="intro-badge-icon">✦</span>
+          <span>DAYLIGHT AI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-app-container">
+      <!-- Full-Height Left Sidebar (from top to down edge-to-edge) -->
+      <aside class="ai-history-sidebar" id="ai-history-sidebar" aria-label="Chat history">
+        <div class="ai-sidebar-header">
+          <a class="brand ai-sidebar-brand" href="/" aria-label="Back to Daylight tasks">
+            <span class="brand-mark" aria-hidden="true">✳</span>
+            <span>daylight<span class="brand-period">.</span></span>
+          </a>
+          <button class="ai-sidebar-close-btn" id="ai-sidebar-close-btn" type="button" aria-label="Close sidebar" title="Close sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="ai-sidebar-nav-actions">
+          <a class="ai-sidebar-back-link" href="/" title="Return to your tasks board">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Back to my tasks</span>
+          </a>
+          <button type="button" class="ai-new-chat-btn" id="new-chat-btn">
+            <span aria-hidden="true">＋</span> New conversation
+          </button>
+        </div>
+
+        <div class="ai-history-title-row">
+          <span>RECENT CHATS</span>
+          <span class="ai-history-count" id="history-count">0</span>
+        </div>
+        <div class="ai-history-list" id="ai-history-list" role="list">
+          <div class="ai-history-empty" id="history-empty">No saved chats yet</div>
+        </div>
+      </aside>
+
+      <!-- Main Canvas Area -->
+      <main class="ai-main-canvas">
+        <!-- Floating Canvas Header Bar -->
+        <header class="ai-canvas-header">
+          <div class="ai-canvas-header-left">
+            <button class="ai-history-toggle" id="ai-history-toggle" type="button" aria-label="Toggle chat history" title="Toggle chat history">
+              <span aria-hidden="true">☰</span>
+            </button>
+          </div>
+
+          <div class="ai-canvas-header-right">
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">
+              <svg class="theme-icon theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6a8.6 8.6 0 1 0 11.6 11.6Z" /></svg>
+              <svg class="theme-icon theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
+            </button>
+
+            <!-- Date Label -->
+            <span class="date-label" id="today-label"></span>
+
+            <!-- Full Daylight Account Controls & Popover -->
+            <div class="account-controls" id="account-controls">
+              <span class="account-name" id="account-name"></span>
+              <div class="account-menu-wrap">
+                <button class="avatar" id="account-menu-button" type="button" aria-label="Open Daylight account menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="account-popover">Y</button>
+                <section class="account-popover" id="account-popover" role="dialog" aria-label="Daylight account" hidden>
+                  <div class="popover-heading"><div><strong>Daylight account</strong><span>Manage your sign-in options</span></div><button class="popover-close" id="close-account-popover" type="button" aria-label="Close account menu">×</button></div>
+                  <div class="current-account-card"><span class="account-avatar-small" id="popover-avatar">Y</span><div><strong id="popover-name"></strong><span id="popover-email"></span></div><span class="current-badge">CURRENT</span></div>
+                  <div class="connected-heading">CONNECTED SIGN-IN OPTIONS</div>
+                  <div class="linked-account-list" id="linked-account-list"></div>
+                  <div class="connect-actions" id="connect-actions"></div>
+                  <div class="saved-accounts" id="saved-accounts" hidden><div class="connected-heading">ACCOUNTS ON THIS DEVICE</div><div id="saved-account-list"></div></div>
+                  <div class="account-menu-actions">
+                    <button type="button" id="switch-account-button">＋ Add or switch account</button>
+                    <button type="button" id="sign-out-all-button">Sign out of all accounts</button>
+                  </div>
+                  <p class="account-menu-note">Social sign-in links a provider to your current Daylight account. Your tasks stay together.</p>
+                </section>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Right Side: Chat Container (ChatGPT Style Spacious Canvas) -->
+        <section class="ai-chat-card is-new-chat" id="ai-chat-card" aria-label="Daylight AI Chat">
+          <!-- Centered Hero for New Chat: Random dynamic task/productivity title -->
+          <div class="ai-hero-wrap" id="ai-hero-wrap">
+            <h1 class="ai-hero-title" id="ai-hero-title">What’s on your mind today?</h1>
+          </div>
+
+          <!-- Chat messages stream (only visible when chatting) -->
+          <div class="ai-chat-messages" id="ai-chat-messages" role="log" aria-live="polite" aria-relevant="additions text"></div>
+
+          <!-- Bottom / Centered Input & Suggestions Container -->
+          <div class="ai-bottom-dock" id="ai-bottom-dock">
+            <div class="ai-prompt-suggestions" id="ai-prompt-suggestions" aria-label="Example questions">
+              <button type="button" data-ai-prompt="What active tasks do I have on my list and what should I focus on first?">📋 Review my tasks</button>
+              <button type="button" data-ai-prompt="Help me break down my tasks into smaller, easy steps">✂️ Break down tasks</button>
+              <button type="button" data-ai-prompt="Help me prioritize what to tackle first today">🎯 Prioritize today</button>
+              <button type="button" data-ai-prompt="Help me brainstorm ideas to organize my week">💡 Plan my week</button>
+            </div>
+            
+            <!-- Floating Voice Listening Status Indicator -->
+            <div class="ai-voice-status" id="ai-voice-status" hidden>
+              <span class="voice-status-dot"></span>
+              <span class="voice-status-text" id="voice-status-text">Listening... speak to Daylight</span>
+            </div>
+
+            <form class="ai-chat-form" id="ai-chat-form">
+              <label class="visually-hidden" for="ai-chat-input">Message Daylight AI</label>
+              <textarea id="ai-chat-input" rows="1" maxlength="1000" placeholder="Ask Daylight anything or plan your tasks…" required></textarea>
+              <div class="ai-form-actions">
+                <!-- Choose Model Dropdown inside the Chat Box! -->
+                <div class="ai-model-picker" id="ai-model-picker">
+                  <button type="button" class="ai-model-btn" id="ai-model-btn" aria-haspopup="listbox" aria-expanded="false" title="Choose AI model">
+                    <span class="ai-model-icon" id="selected-model-icon">⚡</span>
+                    <span class="ai-model-name" id="selected-model-name">Gemini 3.1 Flash Lite</span>
+                    <span class="ai-model-chevron" aria-hidden="true">▾</span>
+                  </button>
+                  <div class="ai-model-dropdown" id="ai-model-dropdown" role="listbox" hidden>
+                    <div class="ai-model-dropdown-header">CHOOSE MODEL</div>
+                    
+                    <div class="ai-model-option active" role="option" data-model="gemini-3.1-flash-lite" aria-selected="true">
+                      <div class="ai-model-option-top">
+                        <span class="ai-model-option-title">⚡ Gemini 3.1 Flash Lite</span>
+                        <span class="ai-model-badge fast">Fastest · 1.5s</span>
+                      </div>
+                      <div class="ai-model-option-desc">Instant real-time streaming, lowest latency, agile everyday chatting.</div>
+                    </div>
+
+                    <div class="ai-model-option" role="option" data-model="gemini-3.5-flash-lite" aria-selected="false">
+                      <div class="ai-model-option-top">
+                        <span class="ai-model-option-title">⚖️ Gemini 3.5 Flash Lite</span>
+                        <span class="ai-model-badge balanced">Balanced</span>
+                      </div>
+                      <div class="ai-model-option-desc">Light reasoning for structured planning, step breakdown, and tasks.</div>
+                    </div>
+
+                    <div class="ai-model-option" role="option" data-model="gemini-3.5-flash" aria-selected="false">
+                      <div class="ai-model-option-top">
+                        <span class="ai-model-option-title">🧠 Gemini 3.5 Flash</span>
+                        <span class="ai-model-badge thinking">Deep Thinking</span>
+                      </div>
+                      <div class="ai-model-option-desc">Chain-of-thought reasoning for complex problem solving, coding, & logic.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Voice Chat Mic Button -->
+                <button type="button" class="ai-voice-btn" id="ai-voice-btn" aria-label="Start voice typing" title="Voice typing (Speak to Daylight)">
+                  <svg class="voice-mic-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                  </svg>
+                  <span class="voice-pulse-ring" aria-hidden="true"></span>
+                </button>
+              </div>
+            </form>
+            <p class="ai-page-footnote">Daylight AI can make mistakes. Check important info.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div class="toast" id="ai-toast" role="status" aria-live="polite"></div>
+
+    <!-- Custom Daylight Confirmation Modal -->
+    <div class="daylight-modal-backdrop" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <div class="daylight-modal">
+        <div class="modal-icon-badge" aria-hidden="true">🗑️</div>
+        <h3 id="modal-title" class="modal-title">Delete conversation?</h3>
+        <p class="modal-desc">This conversation will be permanently removed from your history.</p>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn-cancel" id="modal-cancel-btn">Cancel</button>
+          <button type="button" class="modal-btn-confirm" id="modal-confirm-btn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

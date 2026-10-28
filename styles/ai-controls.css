@@ -1,0 +1,410 @@
+/* ==========================================================================
+   Daylight AI Controls: Voice Typing, Model Switcher Dropdown & Confirmation Modal
+   ========================================================================== */
+
+
+/* Voice Typing Mic Button */
+.ai-voice-btn {
+  position: relative;
+  display: grid !important;
+  place-items: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  flex: 0 0 36px !important;
+  border: 1px solid #dfdbee !important;
+  border-radius: 50% !important;
+  background: #f7f6fc !important;
+  color: #5d6074 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: all .16s ease !important;
+  padding: 0 !important;
+}
+.ai-voice-btn:hover {
+  background: #ede8fc !important;
+  border-color: #cbbeff !important;
+  color: var(--purple, #7558e8) !important;
+  transform: scale(1.05) !important;
+}
+:root[data-theme="dark"] .ai-voice-btn {
+  background: #2b2839 !important;
+  border-color: #403b52 !important;
+  color: #ded8ff !important;
+}
+:root[data-theme="dark"] .ai-voice-btn:hover {
+  background: #353047 !important;
+  border-color: #6a5ca0 !important;
+  color: #ffffff !important;
+}
+
+/* Active Voice Recording / Listening State */
+.ai-voice-btn.is-recording {
+  background: #e04f67 !important;
+  border-color: #e04f67 !important;
+  color: #ffffff !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 4px 14px rgba(224, 79, 103, 0.4) !important;
+}
+.voice-pulse-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid #e04f67;
+  opacity: 0;
+  pointer-events: none;
+}
+.ai-voice-btn.is-recording .voice-pulse-ring {
+  animation: voice-ring-pulse 1.25s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+@keyframes voice-ring-pulse {
+  0% { transform: scale(0.9); opacity: 0.95; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Floating Voice Status Banner */
+.ai-voice-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 90%;
+  margin: 0 auto 10px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: #fff0f3;
+  border: 1px solid #ffd4dc;
+  color: #cf334f;
+  font-size: 12px;
+  font-weight: 600;
+  animation: modal-fade-in .18s ease both;
+  box-shadow: 0 4px 16px rgba(224, 79, 103, 0.15);
+}
+.ai-voice-status[hidden] {
+  display: none !important;
+}
+:root[data-theme="dark"] .ai-voice-status {
+  background: #361f26;
+  border-color: #552733;
+  color: #ff91a5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.voice-status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #e04f67;
+  box-shadow: 0 0 0 3px rgba(224, 79, 103, 0.25);
+  transition: transform .08s ease, background-color .15s ease;
+}
+
+/* Read Aloud Speaking Wave in Assistant Message Actions */
+.chat-action-btn.is-speaking {
+  color: var(--purple, #7558e8) !important;
+  background: #ede8fc !important;
+  border-color: #d1c5fe !important;
+}
+:root[data-theme="dark"] .chat-action-btn.is-speaking {
+  color: #ded8ff !important;
+  background: #362e4f !important;
+  border-color: #5d4e87 !important;
+}
+
+
+/* Model Picker Inside Chat Box */
+.ai-model-picker {
+  position: relative;
+}
+.ai-model-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #dfdbee;
+  border-radius: 20px;
+  background: #f7f6fc;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+  transition: all .16s ease;
+  white-space: nowrap;
+}
+.ai-model-btn:hover {
+  border-color: #cbbeff;
+  background: #ede8fc;
+  color: var(--purple, #7558e8);
+}
+:root[data-theme="dark"] .ai-model-btn {
+  background: #2b2839;
+  border-color: #403b52;
+  color: #ded8ff;
+  box-shadow: none;
+}
+:root[data-theme="dark"] .ai-model-btn:hover {
+  background: #353047;
+  border-color: #6a5ca0;
+  color: #ffffff;
+}
+.ai-model-chevron {
+  font-size: 10px;
+  color: #9fa1b3;
+  margin-left: 2px;
+}
+.ai-model-dropdown {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  top: auto;
+  left: auto;
+  width: 320px;
+  background: #ffffff;
+  border: 1px solid #e3e0ef;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 16px 40px rgba(35, 25, 70, 0.16);
+  z-index: 100;
+  animation: modal-fade-in .18s ease both;
+}
+@media (max-width: 560px) {
+  .ai-model-name {
+    display: none;
+  }
+  .ai-model-btn {
+    padding: 6px 8px;
+  }
+  .ai-model-dropdown {
+    right: -36px;
+    max-width: calc(100vw - 32px);
+  }
+}
+.ai-model-dropdown[hidden] {
+  display: none !important;
+}
+:root[data-theme="dark"] .ai-model-dropdown {
+  background: #24212f;
+  border-color: #3c384e;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+.ai-model-dropdown-header {
+  padding: 6px 10px 4px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #9da0b3;
+  letter-spacing: 1px;
+}
+.ai-model-option {
+  padding: 9px 12px;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: all .15s ease;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+}
+.ai-model-option:hover {
+  background: #f5f2ff;
+  border-color: #e5dffe;
+}
+.ai-model-option.active {
+  background: #eee9ff;
+  border-color: #d2c5fe;
+}
+:root[data-theme="dark"] .ai-model-option:hover {
+  background: #2c283a;
+  border-color: #453e5b;
+}
+:root[data-theme="dark"] .ai-model-option.active {
+  background: #342d4a;
+  border-color: #5c4e85;
+}
+.ai-model-option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.ai-model-option-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.ai-model-badge {
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.ai-model-badge.fast {
+  background: #e8f9ef;
+  color: #1a9e52;
+}
+.ai-model-badge.balanced {
+  background: #edf3ff;
+  color: #2e68db;
+}
+.ai-model-badge.thinking {
+  background: #fdf0ea;
+  color: #c0531c;
+}
+:root[data-theme="dark"] .ai-model-badge.fast {
+  background: #1c3628;
+  color: #4ee28c;
+}
+:root[data-theme="dark"] .ai-model-badge.balanced {
+  background: #1c2b45;
+  color: #7ab3ff;
+}
+:root[data-theme="dark"] .ai-model-badge.thinking {
+  background: #3b271c;
+  color: #ff9b6b;
+}
+.ai-model-option-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #787b8d;
+}
+:root[data-theme="dark"] .ai-model-option-desc {
+  color: #a4a1b4;
+}
+
+
+
+/* Desktop Collapse & Mobile Responsive */
+
+/* ==========================================================================
+   Custom Daylight Confirmation Dialog Modal
+   ========================================================================== */
+
+.daylight-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(18, 17, 26, 0.52);
+  backdrop-filter: blur(10px);
+  animation: modal-fade-in .2s ease both;
+}
+.daylight-modal-backdrop[hidden] {
+  display: none !important;
+}
+.daylight-modal {
+  width: min(100%, 380px);
+  padding: 30px 26px 24px;
+  border: 1px solid #eeedf7;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(35, 27, 65, 0.22);
+  text-align: center;
+  animation: modal-pop .24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-icon-badge {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 16px;
+  place-items: center;
+  border-radius: 15px;
+  font-size: 24px;
+  background: #fff0f3;
+  color: #e04f67;
+  border: 1px solid #ffccd4;
+}
+.modal-title {
+  margin: 0 0 8px;
+  font: 700 19px Manrope, sans-serif;
+  letter-spacing: -0.4px;
+  color: var(--ink);
+}
+.modal-desc {
+  margin: 0 0 24px;
+  color: #7b7e90;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.modal-btn-cancel {
+  flex: 1;
+  padding: 11px 16px;
+  border: 1px solid #e3e1ec;
+  border-radius: 11px;
+  background: #f7f6fb;
+  color: #555869;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+.modal-btn-cancel:hover {
+  background: #edeaf5;
+  border-color: #d8d4e5;
+  transform: translateY(-1px);
+}
+.modal-btn-confirm {
+  flex: 1;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 11px;
+  background: #e04f67;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(224, 79, 103, 0.32);
+  transition: all .16s ease;
+}
+.modal-btn-confirm:hover {
+  background: #ce3b53;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(224, 79, 103, 0.42);
+}
+.modal-btn-confirm:active {
+  transform: scale(0.98);
+}
+
+/* Modal dark mode */
+:root[data-theme="dark"] .daylight-modal-backdrop {
+  background: rgba(10, 9, 14, 0.72);
+}
+:root[data-theme="dark"] .daylight-modal {
+  background: #25232f;
+  border-color: #3d394b;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+}
+:root[data-theme="dark"] .modal-icon-badge {
+  background: #3e222a;
+  border-color: #592d37;
+}
+:root[data-theme="dark"] .modal-desc {
+  color: #a4a1b3;
+}
+:root[data-theme="dark"] .modal-btn-cancel {
+  background: #2e2b3a;
+  border-color: #423e52;
+  color: #d1cde0;
+}
+:root[data-theme="dark"] .modal-btn-cancel:hover {
+  background: #383447;
+  color: #fff;
+}
+
