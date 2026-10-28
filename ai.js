@@ -108,7 +108,9 @@ async function api(path, options = {}) {
     try { err = await response.json(); } catch {}
     throw new Error(err.error || `HTTP ${response.status}`);
   }
-  return response.json();
+  if (response.status === 204) return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 function addMessage(role, text, { typing = false, html = "", id = null } = {}) {
@@ -722,7 +724,16 @@ async function confirmDeleteConversation() {
     await loadConversations();
     showToast("Conversation deleted.");
   } catch (err) {
-    showToast(err.message);
+    if (err.message && err.message.toLowerCase().includes("not found")) {
+      conversations = conversations.filter((c) => c.id !== idToDelete);
+      renderConversationList();
+      if (currentConversationId === idToDelete) {
+        startNewChat();
+      }
+      showToast("Conversation deleted.");
+    } else {
+      showToast(err.message);
+    }
   }
 }
 

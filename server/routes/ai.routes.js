@@ -62,7 +62,7 @@ router.patch("/api/ai/conversations/:id/pin", requireAuth, requireCsrf, (req, re
 router.delete("/api/ai/conversations/:id", requireAuth, requireCsrf, (req, res) => {
   const result = db.prepare("DELETE FROM ai_conversations WHERE id = ? AND user_id = ?").run(req.params.id, req.user.id);
   if (result.changes === 0) return res.status(404).json({ error: "Conversation not found." });
-  res.status(204).end();
+  res.json({ ok: true, id: req.params.id });
 });
 
 // AI Chat Main Endpoint (Streaming & Non-Streaming)
