@@ -85,21 +85,18 @@ function updateModelPickerUI() {
 
 function initModelPicker({ showToast = () => {}, onModelChange = () => {} } = {}) {
   const pickerBtn = document.querySelector("#ai-model-btn");
-  const dropdownWrapper = document.querySelector("#ai-model-dropdown");
-  const usageTrigger = document.querySelector("#ai-model-usage-trigger");
-  const usageBackBtn = document.querySelector("#usage-back-btn");
+  const dropdown = document.querySelector("#ai-model-dropdown");
   const attachBtn = document.querySelector("#ai-attach-btn");
   const attachDropdown = document.querySelector("#ai-attach-dropdown");
   const chatInput = document.querySelector("#ai-chat-input");
 
-  if (!pickerBtn || !dropdownWrapper) return;
+  if (!pickerBtn || !dropdown) return;
 
   updateModelPickerUI();
 
   // Close helper
   const closeAllDropdowns = () => {
-    dropdownWrapper.hidden = true;
-    dropdownWrapper.classList.remove("show-usage");
+    dropdown.hidden = true;
     pickerBtn.setAttribute("aria-expanded", "false");
     if (attachDropdown) {
       attachDropdown.hidden = true;
@@ -111,16 +108,13 @@ function initModelPicker({ showToast = () => {}, onModelChange = () => {} } = {}
   pickerBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (attachDropdown) attachDropdown.hidden = true;
-    const isHidden = dropdownWrapper.hidden;
-    dropdownWrapper.hidden = !isHidden;
-    if (isHidden) {
-      dropdownWrapper.classList.remove("show-usage");
-    }
+    const isHidden = dropdown.hidden;
+    dropdown.hidden = !isHidden;
     pickerBtn.setAttribute("aria-expanded", String(!isHidden));
   });
 
   // Handle Model Selection
-  dropdownWrapper.querySelectorAll(".ai-model-option").forEach((opt) => {
+  dropdown.querySelectorAll(".ai-model-option").forEach((opt) => {
     opt.addEventListener("click", (e) => {
       e.stopPropagation();
       const modelKey = opt.dataset.model;
@@ -151,53 +145,17 @@ function initModelPicker({ showToast = () => {}, onModelChange = () => {} } = {}
     });
   });
 
-  // View Usage Flyout trigger
-  let usageHoverTimer = null;
-
-  if (usageTrigger) {
-    const showUsage = () => {
-      clearTimeout(usageHoverTimer);
-      dropdownWrapper.classList.add("show-usage");
-      usageTrigger.setAttribute("aria-expanded", "true");
-    };
-
-    const hideUsage = () => {
-      usageHoverTimer = setTimeout(() => {
-        // Only hide if not inside flyout
-        if (!dropdownWrapper.matches(":hover") && window.innerWidth > 600) {
-          dropdownWrapper.classList.remove("show-usage");
-          usageTrigger.setAttribute("aria-expanded", "false");
-        }
-      }, 300);
-    };
-
-    usageTrigger.addEventListener("mouseenter", showUsage);
-    usageTrigger.addEventListener("mouseleave", hideUsage);
-
-    usageTrigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownWrapper.classList.toggle("show-usage");
-      const isShowing = dropdownWrapper.classList.contains("show-usage");
-      usageTrigger.setAttribute("aria-expanded", String(isShowing));
-    });
-  }
-
-  // Mobile Back button in Usage Flyout
-  if (usageBackBtn) {
-    usageBackBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownWrapper.classList.remove("show-usage");
-      usageTrigger?.setAttribute("aria-expanded", "false");
-    });
-  }
-
   // Attachment Button & Dropdown Logic
   if (attachBtn && attachDropdown) {
     attachBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      dropdownWrapper.hidden = true;
-      dropdownWrapper.classList.remove("show-usage");
+      dropdown.hidden = true;
       pickerBtn.setAttribute("aria-expanded", "false");
+
+      const isHidden = attachDropdown.hidden;
+      attachDropdown.hidden = !isHidden;
+      attachBtn.setAttribute("aria-expanded", String(!isHidden));
+    });
 
       const isHidden = attachDropdown.hidden;
       attachDropdown.hidden = !isHidden;

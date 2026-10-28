@@ -66,7 +66,7 @@ router.delete("/api/ai/conversations/:id", requireAuth, requireCsrf, (req, res) 
 });
 
 // AI Chat Main Endpoint (Streaming & Non-Streaming)
-router.post("/api/ai/chat", requireAuth, requireCsrf, aiLimiter, async (req, res, next) => {
+router.post("/api/ai/chat", requireAuth, requireCsrf, async (req, res, next) => {
   const message = typeof req.body?.message === "string" ? req.body.message.trim() : "";
   if (!message || message.length > 1000) {
     return res.status(400).json({ error: "Your message must be between 1 and 1,000 characters." });

@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="theme.js"></script>
-    <link rel="stylesheet" href="styles.css?v=5.4" />
-    <script src="js/ai-models.js?v=3.0" defer></script>
+    <link rel="stylesheet" href="styles.css?v=5.5" />
+    <script src="js/ai-models.js?v=3.1" defer></script>
     <script src="js/ai-voice.js?v=4.6" defer></script>
     <script src="js/ai-account.js?v=2.0" defer></script>
-    <script src="ai.js?v=5.4" defer></script>
+    <script src="ai.js?v=5.5" defer></script>
   </head>
   <body class="ai-page">
     <!-- Premium Full-Screen Intro Screen -->
@@ -184,124 +184,39 @@
                     <span class="ai-model-chevron" aria-hidden="true">⌃</span>
                   </button>
 
-                  <div class="ai-model-dropdown-wrapper" id="ai-model-dropdown" hidden>
-                    <!-- Main Model Selection Pane -->
-                    <div class="ai-model-dropdown-pane" role="listbox">
-                      <!-- 1. Gemini 3.8 Flash High -->
-                      <div class="ai-model-option active" role="option" data-model="gemini-3.8-flash-high" aria-selected="true">
-                        <span class="ai-model-check">✓</span>
-                        <span class="ai-model-title">Gemini 3.8 Flash High</span>
-                      </div>
-
-                      <!-- 2. Claude Sonnet 4.6 (Thinking) -->
-                      <div class="ai-model-option" role="option" data-model="claude-sonnet-4.6" aria-selected="false">
-                        <span class="ai-model-check"></span>
-                        <span class="ai-model-title">Claude Sonnet 4.6 (Thinking)</span>
-                        <span class="ai-model-tag notice" title="Notice: Hybrid reasoning model">Notice <span class="tag-info">ⓘ</span></span>
-                      </div>
-
-                      <!-- 3. Claude Opus 4.6 (Thinking) -->
-                      <div class="ai-model-option" role="option" data-model="claude-opus-4.6" aria-selected="false">
-                        <span class="ai-model-check"></span>
-                        <span class="ai-model-title">Claude Opus 4.6 (Thinking)</span>
-                        <span class="ai-model-tag notice" title="Notice: Deep intelligence model">Notice <span class="tag-info">ⓘ</span></span>
-                      </div>
-
-                      <!-- 4. GPT-OSS 120B (Medium) -->
-                      <div class="ai-model-option" role="option" data-model="gpt-oss-120b" aria-selected="false">
-                        <span class="ai-model-check"></span>
-                        <span class="ai-model-title">GPT-OSS 120B (Medium)</span>
-                        <span class="ai-model-tag notice" title="Notice: Medium reasoning mode">Notice <span class="tag-info">ⓘ</span></span>
-                      </div>
-
-                      <!-- 5. Gemini 4 Argon -->
-                      <div class="ai-model-option is-disabled" role="option" data-model="gemini-4-argon" aria-selected="false" aria-disabled="true">
-                        <span class="ai-model-check"></span>
-                        <span class="ai-model-title">Gemini 4 Argon</span>
-                        <span class="ai-model-tag unavailable" title="Unavailable: Preview model not available">Unavailable <span class="tag-info">ⓘ</span></span>
-                      </div>
-
-                      <!-- Menu Divider -->
-                      <div class="ai-model-menu-divider"></div>
-
-                      <!-- View Usage Trigger -->
-                      <div class="ai-model-usage-trigger" id="ai-model-usage-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
-                        <div class="ai-model-usage-left">
-                          <span class="ai-usage-icon">📈</span>
-                          <span class="ai-usage-label">View Usage</span>
-                        </div>
-                        <span class="ai-usage-arrow">›</span>
-                      </div>
+                  <div class="ai-model-dropdown" id="ai-model-dropdown" role="listbox" hidden>
+                    <!-- 1. Gemini 3.8 Flash High -->
+                    <div class="ai-model-option active" role="option" data-model="gemini-3.8-flash-high" aria-selected="true">
+                      <span class="ai-model-check">✓</span>
+                      <span class="ai-model-title">Gemini 3.8 Flash High</span>
                     </div>
 
-                    <!-- View Usage Flyout Submenu Panel -->
-                    <div class="ai-usage-flyout-pane" id="ai-usage-flyout" aria-label="Model usage and quotas">
-                      <div class="usage-flyout-header">
-                        <button type="button" class="usage-back-btn" id="usage-back-btn" aria-label="Back to models">‹ Back</button>
-                        <span class="usage-flyout-title">Usage</span>
-                      </div>
+                    <!-- 2. Claude Sonnet 4.6 (Thinking) -->
+                    <div class="ai-model-option" role="option" data-model="claude-sonnet-4.6" aria-selected="false">
+                      <span class="ai-model-check"></span>
+                      <span class="ai-model-title">Claude Sonnet 4.6 (Thinking)</span>
+                      <span class="ai-model-tag notice" title="Notice: Hybrid reasoning model">Notice <span class="tag-info">ⓘ</span></span>
+                    </div>
 
-                      <!-- Gemini Models Group -->
-                      <div class="usage-group">
-                        <div class="usage-group-title">Gemini Models</div>
-                        
-                        <div class="usage-metric-row">
-                          <div class="usage-metric-text">
-                            <span class="usage-metric-name">Weekly limit</span>
-                            <span class="usage-metric-sub"><strong class="usage-metric-val">74%</strong> left · Resets in 4d 15h</span>
-                          </div>
-                          <div class="usage-meter-circle">
-                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
-                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                              <path class="usage-ring-fill" stroke-dasharray="74, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                            </svg>
-                          </div>
-                        </div>
+                    <!-- 3. Claude Opus 4.6 (Thinking) -->
+                    <div class="ai-model-option" role="option" data-model="claude-opus-4.6" aria-selected="false">
+                      <span class="ai-model-check"></span>
+                      <span class="ai-model-title">Claude Opus 4.6 (Thinking)</span>
+                      <span class="ai-model-tag notice" title="Notice: Deep intelligence model">Notice <span class="tag-info">ⓘ</span></span>
+                    </div>
 
-                        <div class="usage-metric-row">
-                          <div class="usage-metric-text">
-                            <span class="usage-metric-name">5h limit</span>
-                            <span class="usage-metric-sub"><strong class="usage-metric-val">85%</strong> left · Resets in 2h 18m</span>
-                          </div>
-                          <div class="usage-meter-circle">
-                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
-                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                              <path class="usage-ring-fill" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
+                    <!-- 4. GPT-OSS 120B (Medium) -->
+                    <div class="ai-model-option" role="option" data-model="gpt-oss-120b" aria-selected="false">
+                      <span class="ai-model-check"></span>
+                      <span class="ai-model-title">GPT-OSS 120B (Medium)</span>
+                      <span class="ai-model-tag notice" title="Notice: Medium reasoning mode">Notice <span class="tag-info">ⓘ</span></span>
+                    </div>
 
-                      <!-- Claude & GPT Models Group -->
-                      <div class="usage-group">
-                        <div class="usage-group-title">Claude and GPT models</div>
-
-                        <div class="usage-metric-row">
-                          <div class="usage-metric-text">
-                            <span class="usage-metric-name">Weekly limit</span>
-                            <span class="usage-metric-sub"><strong class="usage-metric-val">100%</strong> left · Resets in 7d</span>
-                          </div>
-                          <div class="usage-meter-circle">
-                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
-                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                              <path class="usage-ring-fill" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                            </svg>
-                          </div>
-                        </div>
-
-                        <div class="usage-metric-row">
-                          <div class="usage-metric-text">
-                            <span class="usage-metric-name">5h limit</span>
-                            <span class="usage-metric-sub"><strong class="usage-metric-val">100%</strong> left · Resets in 5h</span>
-                          </div>
-                          <div class="usage-meter-circle">
-                            <svg class="usage-ring-svg" width="34" height="34" viewBox="0 0 36 36">
-                              <path class="usage-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                              <path class="usage-ring-fill" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
+                    <!-- 5. Gemini 4 Argon -->
+                    <div class="ai-model-option is-disabled" role="option" data-model="gemini-4-argon" aria-selected="false" aria-disabled="true">
+                      <span class="ai-model-check"></span>
+                      <span class="ai-model-title">Gemini 4 Argon</span>
+                      <span class="ai-model-tag unavailable" title="Unavailable: Preview model not available">Unavailable <span class="tag-info">ⓘ</span></span>
                     </div>
                   </div>
                 </div>

@@ -496,6 +496,7 @@ When you are ready to deploy Daylight online for real users, keep these **essent
   - **Backend Model & Persona Handling:**
     - Added all models to `ALLOWED_MODELS` in `server/ai-service.js`.
     - Added intelligent model routing in `server/routes/ai.routes.js` with model persona adaptation and guaranteed sub-2-second response latency.
+    - **Usage Limits Removed:** Removed artificial rate-limiting middleware from the chat endpoint so requests have no arbitrary caps, and cleanly detached the placeholder quota flyout menu for a minimal, focused model switcher dropdown.
 
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*
