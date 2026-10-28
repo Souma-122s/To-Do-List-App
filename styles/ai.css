@@ -879,6 +879,10 @@
   transition: all .16s ease;
   position: relative;
   user-select: none;
+  touch-action: manipulation;
+}
+.ai-history-item:active {
+  transform: scale(0.99);
 }
 .ai-history-item:hover {
   color: var(--purple);
@@ -1009,6 +1013,23 @@
   font-size: 12.5px;
   cursor: pointer;
   text-align: left;
+  pointer-events: none;
+}
+.chat-loading-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px;
+  color: #7b7d90;
+  font-size: 13.5px;
+  font-weight: 500;
+  animation: modal-fade-in .15s ease both;
+}
+:root[data-theme="dark"] .chat-loading-notice {
+  color: #aba8bf;
+}
+.chat-loading-notice .daylight-avatar-badge {
+  animation: spark-spin 2s linear infinite;
 }
 .ai-history-pin-badge {
   display: inline-flex;

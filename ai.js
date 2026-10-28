@@ -533,6 +533,7 @@ async function sendEditedMessage(text, replaceMessageId) {
 function createHistoryItem(conv) {
   const item = document.createElement("div");
   item.className = "ai-history-item" + (conv.isPinned ? " is-pinned" : "");
+  item.dataset.id = conv.id;
   if (conv.id === currentConversationId) item.classList.add("active");
 
   const btn = document.createElement("button");
@@ -560,7 +561,6 @@ function createHistoryItem(conv) {
   }
 
   btn.append(titleSpan);
-  btn.addEventListener("click", () => selectConversation(conv.id));
 
   const actions = document.createElement("div");
   actions.className = "ai-history-actions";
@@ -573,7 +573,10 @@ function createHistoryItem(conv) {
   pinBtn.innerHTML = conv.isPinned
     ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M12 17v5" stroke-width="2.5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 0-2H8a1 1 0 0 0 0 2h1z"/></svg>`
     : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 0-2H8a1 1 0 0 0 0 2h1z"/></svg>`;
-  pinBtn.addEventListener("click", (e) => togglePinConversation(conv.id, e));
+  pinBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    togglePinConversation(conv.id, e);
+  });
 
   const delBtn = document.createElement("button");
   delBtn.type = "button";
@@ -581,10 +584,20 @@ function createHistoryItem(conv) {
   delBtn.title = "Delete chat";
   delBtn.setAttribute("aria-label", "Delete chat");
   delBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
-  delBtn.addEventListener("click", (e) => promptDeleteConversation(conv.id, e));
+  delBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    promptDeleteConversation(conv.id, e);
+  });
 
   actions.append(pinBtn, delBtn);
   item.append(btn, actions);
+
+  // Entire row is clickable with zero dead zones
+  item.addEventListener("click", (e) => {
+    if (e.target.closest(".ai-history-actions")) return;
+    selectConversation(conv.id);
+  });
+
   return item;
 }
 
@@ -676,13 +689,35 @@ async function loadConversations() {
 }
 
 async function selectConversation(id) {
-  if (busy || currentConversationId === id) return;
+  if (currentConversationId === id) return;
+  if (busy) {
+    showToast("Please wait until Daylight finishes thinking.");
+    return;
+  }
+
+  // Instant optimistic feedback: highlight the clicked chat immediately on first click
+  currentConversationId = id;
+  document.querySelectorAll(".ai-history-item").forEach((el) => {
+    el.classList.toggle("active", el.dataset.id === id);
+  });
+
+  // Smooth immediate view transition
+  setChatViewMode(false);
+  messages.replaceChildren();
+  const loadingIndicator = document.createElement("div");
+  loadingIndicator.className = "chat-loading-notice";
+  loadingIndicator.innerHTML = `
+    <span class="daylight-avatar-badge" aria-hidden="true">✳</span>
+    <span class="chat-loading-text">Loading conversation...</span>
+  `;
+  messages.append(loadingIndicator);
+
   try {
     const result = await api(`/api/ai/conversations/${encodeURIComponent(id)}`);
-    currentConversationId = id;
-    renderConversationList();
+    // If the user clicked another conversation while this was loading, discard stale payload
+    if (currentConversationId !== id) return;
 
-    setChatViewMode(false);
+    renderConversationList();
     messages.replaceChildren();
 
     if (Array.isArray(result.messages) && result.messages.length > 0) {
@@ -696,7 +731,7 @@ async function selectConversation(id) {
     historySidebar?.classList.remove("open");
     input.focus();
   } catch (err) {
-    showToast(err.message);
+    showToast(err.message || "Failed to load conversation");
   }
 }
 
