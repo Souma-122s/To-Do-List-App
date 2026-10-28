@@ -450,5 +450,12 @@ When you are ready to deploy Daylight online for real users, keep these **essent
 - [ ] Set your real production Google & Facebook callback URLs in Google Cloud & Meta Developer dashboards.
 - [ ] Regularly backup `database.sqlite` (it contains your user accounts, tasks, and conversations).
 
+- [x] **Git & GitHub Repository Setup**:
+  - Initialized Git tracking with safe exclusion of `.env` and `*.sqlite` files.
+  - Resolved Windows LF/CRLF warnings.
+  - Configured GitHub privacy email (`Souma-122s@users.noreply.github.com`).
+  - Remote repository connected and published to `https://github.com/Souma-122s/To-Do-List-App`.
+  - Upgraded README with shields.io badges, feature tables, architecture tree, and quickstart guide.
+
 ---
-*Created for your personal notebook. Rest up, refuel, and we will dive into Pin the Chat and Voice Audio tomorrow!*
+*Created for your personal notebook. Rest up, refuel, and we will dive into Pin the Chat and Voice Audio!*
