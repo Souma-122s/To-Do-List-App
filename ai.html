@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="theme.js"></script>
-    <link rel="stylesheet" href="styles.css?v=5.5" />
-    <script src="js/ai-models.js?v=3.1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=5.6" />
+    <script src="js/ai-models.js?v=3.2" defer></script>
     <script src="js/ai-voice.js?v=4.6" defer></script>
     <script src="js/ai-account.js?v=2.0" defer></script>
-    <script src="ai.js?v=5.5" defer></script>
+    <script src="ai.js?v=5.6" defer></script>
   </head>
   <body class="ai-page">
     <!-- Premium Full-Screen Intro Screen -->
@@ -143,80 +143,44 @@
               <label class="visually-hidden" for="ai-chat-input">Message Daylight AI</label>
               <textarea id="ai-chat-input" rows="1" maxlength="1000" placeholder="Ask Daylight anything or plan your tasks…" required></textarea>
               <div class="ai-form-actions">
-                <!-- Attachment / Add Context Button -->
-                <div class="ai-attach-picker" id="ai-attach-picker">
-                  <button type="button" class="ai-attach-btn" id="ai-attach-btn" aria-haspopup="true" aria-expanded="false" title="Add task context or reference" aria-label="Add context">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </button>
-                  <div class="ai-attach-dropdown" id="ai-attach-dropdown" hidden>
-                    <div class="ai-attach-header">ATTACH CONTEXT</div>
-                    <button type="button" class="ai-attach-option" data-action="attach-tasks">
-                      <span class="attach-opt-icon">📋</span>
-                      <div class="attach-opt-body">
-                        <div class="attach-opt-title">Current Active Tasks</div>
-                        <div class="attach-opt-desc">Include your to-do items as context for planning.</div>
-                      </div>
-                    </button>
-                    <button type="button" class="ai-attach-option" data-action="prioritize-tasks">
-                      <span class="attach-opt-icon">🎯</span>
-                      <div class="attach-opt-body">
-                        <div class="attach-opt-title">Prioritization Prompt</div>
-                        <div class="attach-opt-desc">Ask Daylight what to focus on first today.</div>
-                      </div>
-                    </button>
-                    <button type="button" class="ai-attach-option" data-action="breakdown-tasks">
-                      <span class="attach-opt-icon">✂️</span>
-                      <div class="attach-opt-body">
-                        <div class="attach-opt-title">Task Breakdown Prompt</div>
-                        <div class="attach-opt-desc">Split large tasks into quick bite-sized steps.</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
                 <!-- Choose Model Dropdown inside the Chat Box! -->
                 <div class="ai-model-picker" id="ai-model-picker">
                   <button type="button" class="ai-model-btn" id="ai-model-btn" aria-haspopup="listbox" aria-expanded="false" title="Choose AI model">
-                    <span class="ai-model-name" id="selected-model-name">Gemini 3.8 Flash High</span>
-                    <span class="ai-model-chevron" aria-hidden="true">⌃</span>
+                    <span class="ai-model-name" id="selected-model-name">Gemini 3.8 Flash</span>
+                    <span class="ai-model-chevron" aria-hidden="true">▾</span>
                   </button>
 
                   <div class="ai-model-dropdown" id="ai-model-dropdown" role="listbox" hidden>
-                    <!-- 1. Gemini 3.8 Flash High -->
-                    <div class="ai-model-option active" role="option" data-model="gemini-3.8-flash-high" aria-selected="true">
-                      <span class="ai-model-check">✓</span>
-                      <span class="ai-model-title">Gemini 3.8 Flash High</span>
+                    <div class="ai-model-dropdown-header">GOOGLE GEMINI MODELS</div>
+
+                    <!-- 1. Gemini 3.5 Flash Lite -->
+                    <div class="ai-model-option" role="option" data-model="gemini-3.5-flash-lite" aria-selected="false">
+                      <div class="ai-model-option-top">
+                        <span class="ai-model-check"></span>
+                        <span class="ai-model-title">Gemini 3.5 Flash Lite</span>
+                        <span class="ai-model-badge balanced">Balanced</span>
+                      </div>
+                      <div class="ai-model-option-desc">Lightweight reasoning for structured step breakdowns & daily tasks.</div>
                     </div>
 
-                    <!-- 2. Claude Sonnet 4.6 (Thinking) -->
-                    <div class="ai-model-option" role="option" data-model="claude-sonnet-4.6" aria-selected="false">
-                      <span class="ai-model-check"></span>
-                      <span class="ai-model-title">Claude Sonnet 4.6 (Thinking)</span>
-                      <span class="ai-model-tag notice" title="Notice: Hybrid reasoning model">Notice <span class="tag-info">ⓘ</span></span>
+                    <!-- 2. Gemini 3.8 Flash (Default Flagship) -->
+                    <div class="ai-model-option active" role="option" data-model="gemini-3.8-flash" aria-selected="true">
+                      <div class="ai-model-option-top">
+                        <span class="ai-model-check">✓</span>
+                        <span class="ai-model-title">Gemini 3.8 Flash</span>
+                        <span class="ai-model-badge fast">Ultra Fast · ~1s</span>
+                      </div>
+                      <div class="ai-model-option-desc">Flagship speed, instant real-time streaming, agile everyday chatting.</div>
                     </div>
 
-                    <!-- 3. Claude Opus 4.6 (Thinking) -->
-                    <div class="ai-model-option" role="option" data-model="claude-opus-4.6" aria-selected="false">
-                      <span class="ai-model-check"></span>
-                      <span class="ai-model-title">Claude Opus 4.6 (Thinking)</span>
-                      <span class="ai-model-tag notice" title="Notice: Deep intelligence model">Notice <span class="tag-info">ⓘ</span></span>
-                    </div>
-
-                    <!-- 4. GPT-OSS 120B (Medium) -->
-                    <div class="ai-model-option" role="option" data-model="gpt-oss-120b" aria-selected="false">
-                      <span class="ai-model-check"></span>
-                      <span class="ai-model-title">GPT-OSS 120B (Medium)</span>
-                      <span class="ai-model-tag notice" title="Notice: Medium reasoning mode">Notice <span class="tag-info">ⓘ</span></span>
-                    </div>
-
-                    <!-- 5. Gemini 4 Argon -->
-                    <div class="ai-model-option is-disabled" role="option" data-model="gemini-4-argon" aria-selected="false" aria-disabled="true">
-                      <span class="ai-model-check"></span>
-                      <span class="ai-model-title">Gemini 4 Argon</span>
-                      <span class="ai-model-tag unavailable" title="Unavailable: Preview model not available">Unavailable <span class="tag-info">ⓘ</span></span>
+                    <!-- 3. Gemini 3.1 Pro -->
+                    <div class="ai-model-option" role="option" data-model="gemini-3.1-pro" aria-selected="false">
+                      <div class="ai-model-option-top">
+                        <span class="ai-model-check"></span>
+                        <span class="ai-model-title">Gemini 3.1 Pro</span>
+                        <span class="ai-model-badge thinking">Deep Intelligence</span>
+                      </div>
+                      <div class="ai-model-option-desc">Google's Pro reasoning model for complex logic, analysis, and architecture.</div>
                     </div>
                   </div>
                 </div>

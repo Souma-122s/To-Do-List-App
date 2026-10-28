@@ -474,29 +474,15 @@ When you are ready to deploy Daylight online for real users, keep these **essent
 
 - *UI Polish:* Added Daylight logo avatar badge (`✳`) to every assistant message and thinking indicator with dark/light mode theme support.
 
-- [x] **Antigravity IDE-Style Model Switcher, Quota Flyout & Attachment System**:
-  - **Model Menu Options:**
-    - `Gemini 3.8 Flash High` (selected by default with green `✓` checkmark, powered by ultra-fast 1.3s Google Gemini preview engine).
-    - `Claude Sonnet 4.6 (Thinking)` with `Notice ⓘ` badge (Anthropic hybrid reasoning profile).
-    - `Claude Opus 4.6 (Thinking)` with `Notice ⓘ` badge (Anthropic deep analytical intelligence profile).
-    - `GPT-OSS 120B (Medium)` with `Notice ⓘ` badge (Open-weight medium reasoning profile).
-    - `Gemini 4 Argon` with `Unavailable ⓘ` badge (Disabled state with friendly workspace region notice).
-  - **📈 View Usage Flyout Submenu:**
-    - Interactive side flyout attached cleanly to the model menu.
-    - Two categorized quota sections:
-      - **Gemini Models:** Weekly limit (74% left · Resets in 4d 15h) & 5h limit (85% left · Resets in 2h 18m) with live SVG circular progress rings (`stroke-dasharray="74, 100"` / `"85, 100"` in emerald green `#22c55e`).
-      - **Claude and GPT models:** Weekly limit (100% left · Resets in 7d) & 5h limit (100% left · Resets in 5h) with live 100% circular meters.
-    - Fully responsive: Side-by-side desktop flyout, and sliding view with `‹ Back` button on mobile screens (<600px).
-  - **Attachment (`+`) Context Picker:**
-    - Added dedicated circular `+` button in chat composer bar alongside model selector.
-    - Opens instant context menu allowing users to:
-      - 📋 Attach pending active tasks directly into prompt context.
-      - 🎯 Insert instant prioritization prompt template.
-      - ✂️ Insert 15-minute task breakdown template.
-  - **Backend Model & Persona Handling:**
-    - Added all models to `ALLOWED_MODELS` in `server/ai-service.js`.
-    - Added intelligent model routing in `server/routes/ai.routes.js` with model persona adaptation and guaranteed sub-2-second response latency.
-    - **Usage Limits Removed:** Removed artificial rate-limiting middleware from the chat endpoint so requests have no arbitrary caps, and cleanly detached the placeholder quota flyout menu for a minimal, focused model switcher dropdown.
+- [x] **Streamlined 100% Free Gemini Model Switcher**:
+  - **Syntax Error Fix:** Resolved a stray closing bracket in `js/ai-models.js` that caused model click events and dropdown toggles to halt in the browser.
+  - **Removed Attachments (`+`):** Removed the attachment button and its context menu cleanly per user request to keep the chat interface minimal and focused.
+  - **Exclusive 100% Free Gemini Family:**
+    - `Gemini 3.5 Flash Lite`: Balanced, fast reasoning for daily tasks & breakdowns.
+    - `Gemini 3.8 Flash`: Flagship real-time streaming model (~1.3s first token), default selection.
+    - `Gemini 3.1 Pro`: Deep intelligence reasoning model for complex logic, multi-step analysis, and architecture.
+  - **Single Free API Key Truth:** Confirmed and verified that all 3 models work with the user's existing free `GEMINI_API_KEY` from Google AI Studio with \$0 cost and generous rate limits (15 RPM, 1,500 RPD).
+  - **Zero Rate Limits:** All artificial request limits removed from server endpoints.
 
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*

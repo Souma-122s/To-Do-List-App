@@ -126,24 +126,20 @@ router.post("/api/ai/chat", requireAuth, requireCsrf, async (req, res, next) => 
   let currentModel = requestedModel && ALLOWED_MODELS.includes(requestedModel) ? requestedModel : aiModel;
 
   let modelPersona = "";
-  if (requestedModel === "claude-sonnet-4.6") {
-    modelPersona = "\n\nMODEL PERSONA: You are operating with Claude Sonnet 4.6 hybrid reasoning. Deliver nuanced, articulate, well-structured, and deeply thoughtful assistance.";
-  } else if (requestedModel === "claude-opus-4.6") {
-    modelPersona = "\n\nMODEL PERSONA: You are operating with Claude Opus 4.6 deep intelligence. Provide thorough, multi-faceted analysis, rigorous logic, and architectural clarity.";
-  } else if (requestedModel === "gpt-oss-120b") {
-    modelPersona = "\n\nMODEL PERSONA: You are operating with GPT-OSS 120B medium reasoning. Emphasize crisp, direct, step-by-step logic, code, and structured execution.";
+  if (requestedModel === "gemini-3.1-pro") {
+    modelPersona = "\n\nMODEL PERSONA: Operating in Gemini 3.1 Pro deep intelligence mode. Provide comprehensive, logically structured, multi-step analytical thinking.";
+  } else if (requestedModel === "gemini-3.5-flash-lite") {
+    modelPersona = "\n\nMODEL PERSONA: Operating in Gemini 3.5 Flash Lite balanced mode. Provide clear, direct, and concise productivity assistance.";
+  } else if (requestedModel === "gemini-3.8-flash") {
+    modelPersona = "\n\nMODEL PERSONA: Operating in Gemini 3.8 Flash flagship mode. Deliver fast, intuitive, and highly actionable answers.";
   }
 
-  if (
-    currentModel === "gemini-3.8-flash-high" ||
-    currentModel === "gemini-3.5-flash" ||
-    currentModel === "gemini-3.1-flash-lite" ||
-    currentModel === "claude-sonnet-4.6" ||
-    currentModel === "claude-opus-4.6" ||
-    currentModel === "gpt-oss-120b" ||
-    currentModel === "gemini-4-argon"
-  ) {
+  if (currentModel === "gemini-3.8-flash" || currentModel === "gemini-3.8-flash-high") {
     currentModel = "gemini-3-flash-preview";
+  } else if (currentModel === "gemini-3.1-pro") {
+    currentModel = "gemini-2.5-pro";
+  } else if (currentModel === "gemini-3.5-flash") {
+    currentModel = "gemini-3.5-flash-lite";
   }
 
   const wantStream = Boolean(req.body?.stream);

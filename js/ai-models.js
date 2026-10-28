@@ -1,62 +1,43 @@
 /**
- * Daylight AI - Antigravity Model Switcher & Attachment Component
- * Features Antigravity IDE models, flyout usage quota meter, and context attachment.
+ * Daylight AI - Gemini Models Switcher
+ * Handles switching between Gemini 3.5 Flash Lite, Gemini 3.8 Flash, and Gemini 3.1 Pro.
+ * All models are 100% free with the same GEMINI_API_KEY from Google AI Studio.
  */
 
 const MODEL_DETAILS = {
-  "gemini-3.8-flash-high": {
-    name: "Gemini 3.8 Flash High",
+  "gemini-3.5-flash-lite": {
+    name: "Gemini 3.5 Flash Lite",
+    shortName: "Gemini 3.5 Lite",
+    badge: "Balanced",
+    badgeClass: "balanced",
+  },
+  "gemini-3.8-flash": {
+    name: "Gemini 3.8 Flash",
     shortName: "Gemini 3.8 Flash",
-    available: true,
-    backendModel: "gemini-3-flash-preview",
+    badge: "Ultra Fast · ~1s",
+    badgeClass: "fast",
   },
-  "claude-sonnet-4.6": {
-    name: "Claude Sonnet 4.6 (Thinking)",
-    shortName: "Claude Sonnet 4.6",
-    available: true,
-    tag: "Notice ⓘ",
-    notice: "Notice: Claude Sonnet hybrid reasoning enabled.",
-    backendModel: "gemini-3-flash-preview",
-  },
-  "claude-opus-4.6": {
-    name: "Claude Opus 4.6 (Thinking)",
-    shortName: "Claude Opus 4.6",
-    available: true,
-    tag: "Notice ⓘ",
-    notice: "Notice: Claude Opus deep analytical intelligence enabled.",
-    backendModel: "gemini-3-flash-preview",
-  },
-  "gpt-oss-120b": {
-    name: "GPT-OSS 120B (Medium)",
-    shortName: "GPT-OSS 120B",
-    available: true,
-    tag: "Notice ⓘ",
-    notice: "Notice: GPT-OSS 120B medium reasoning mode enabled.",
-    backendModel: "gemini-3-flash-preview",
-  },
-  "gemini-4-argon": {
-    name: "Gemini 4 Argon",
-    shortName: "Gemini 4 Argon",
-    available: false,
-    tag: "Unavailable ⓘ",
-    notice: "Gemini 4 Argon is currently unavailable in this workspace.",
-    backendModel: "gemini-3-flash-preview",
+  "gemini-3.1-pro": {
+    name: "Gemini 3.1 Pro",
+    shortName: "Gemini 3.1 Pro",
+    badge: "Deep Intelligence",
+    badgeClass: "thinking",
   },
 };
 
-let currentSelectedModel = "gemini-3.8-flash-high";
+let currentSelectedModel = "gemini-3.8-flash";
 
 try {
   const saved = localStorage.getItem("daylight_ai_model");
-  if (saved && MODEL_DETAILS[saved] && MODEL_DETAILS[saved].available) {
+  if (saved && MODEL_DETAILS[saved]) {
     currentSelectedModel = saved;
   } else {
-    // Migrate any legacy model keys
-    localStorage.setItem("daylight_ai_model", "gemini-3.8-flash-high");
-    currentSelectedModel = "gemini-3.8-flash-high";
+    // Default to Gemini 3.8 Flash (fastest ~1.3s response)
+    localStorage.setItem("daylight_ai_model", "gemini-3.8-flash");
+    currentSelectedModel = "gemini-3.8-flash";
   }
 } catch {
-  currentSelectedModel = "gemini-3.8-flash-high";
+  currentSelectedModel = "gemini-3.8-flash";
 }
 
 function getCurrentModel() {
@@ -64,7 +45,7 @@ function getCurrentModel() {
 }
 
 function updateModelPickerUI() {
-  const model = MODEL_DETAILS[currentSelectedModel] || MODEL_DETAILS["gemini-3.8-flash-high"];
+  const model = MODEL_DETAILS[currentSelectedModel] || MODEL_DETAILS["gemini-3.8-flash"];
   const nameEl = document.querySelector("#selected-model-name");
   if (nameEl) {
     nameEl.textContent = model.name;
@@ -75,7 +56,7 @@ function updateModelPickerUI() {
     const isSelected = opt.dataset.model === currentSelectedModel;
     opt.classList.toggle("active", isSelected);
     opt.setAttribute("aria-selected", String(isSelected));
-    
+
     const checkEl = opt.querySelector(".ai-model-check");
     if (checkEl) {
       checkEl.textContent = isSelected ? "✓" : "";
@@ -86,46 +67,27 @@ function updateModelPickerUI() {
 function initModelPicker({ showToast = () => {}, onModelChange = () => {} } = {}) {
   const pickerBtn = document.querySelector("#ai-model-btn");
   const dropdown = document.querySelector("#ai-model-dropdown");
-  const attachBtn = document.querySelector("#ai-attach-btn");
-  const attachDropdown = document.querySelector("#ai-attach-dropdown");
-  const chatInput = document.querySelector("#ai-chat-input");
 
   if (!pickerBtn || !dropdown) return;
 
   updateModelPickerUI();
 
-  // Close helper
-  const closeAllDropdowns = () => {
-    dropdown.hidden = true;
-    pickerBtn.setAttribute("aria-expanded", "false");
-    if (attachDropdown) {
-      attachDropdown.hidden = true;
-      attachBtn?.setAttribute("aria-expanded", "false");
-    }
-  };
-
-  // Toggle Model Dropdown
-  pickerBtn.addEventListener("click", (e) => {
+  // Toggle dropdown on button click
+  pickerBtn.onclick = (e) => {
     e.stopPropagation();
-    if (attachDropdown) attachDropdown.hidden = true;
     const isHidden = dropdown.hidden;
     dropdown.hidden = !isHidden;
     pickerBtn.setAttribute("aria-expanded", String(!isHidden));
-  });
+  };
 
-  // Handle Model Selection
+  // Option selection
   dropdown.querySelectorAll(".ai-model-option").forEach((opt) => {
-    opt.addEventListener("click", (e) => {
+    opt.onclick = (e) => {
       e.stopPropagation();
       const modelKey = opt.dataset.model;
       const modelMeta = MODEL_DETAILS[modelKey];
 
       if (!modelMeta) return;
-
-      if (!modelMeta.available) {
-        showToast(modelMeta.notice || "This model is currently unavailable.");
-        return;
-      }
 
       currentSelectedModel = modelKey;
       try {
@@ -133,110 +95,36 @@ function initModelPicker({ showToast = () => {}, onModelChange = () => {} } = {}
       } catch {}
 
       updateModelPickerUI();
-      closeAllDropdowns();
-
-      if (modelMeta.notice) {
-        showToast(modelMeta.notice);
-      } else {
-        showToast(`Model switched to ${modelMeta.name}`);
-      }
-
-      onModelChange(modelKey);
-    });
-  });
-
-  // Attachment Button & Dropdown Logic
-  if (attachBtn && attachDropdown) {
-    attachBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
       dropdown.hidden = true;
       pickerBtn.setAttribute("aria-expanded", "false");
 
-      const isHidden = attachDropdown.hidden;
-      attachDropdown.hidden = !isHidden;
-      attachBtn.setAttribute("aria-expanded", String(!isHidden));
-    });
+      showToast(`Switched model to ${modelMeta.name}`);
+      onModelChange(modelKey);
+    };
+  });
 
-      const isHidden = attachDropdown.hidden;
-      attachDropdown.hidden = !isHidden;
-      attachBtn.setAttribute("aria-expanded", String(!isHidden));
-    });
-
-    attachDropdown.querySelectorAll(".ai-attach-option").forEach((btn) => {
-      btn.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        attachDropdown.hidden = true;
-        attachBtn.setAttribute("aria-expanded", "false");
-
-        const action = btn.dataset.action;
-        if (!chatInput) return;
-
-        if (action === "attach-tasks") {
-          try {
-            const res = await fetch("/api/tasks", { credentials: "same-origin" });
-            if (res.ok) {
-              const tasks = await res.json();
-              const active = tasks.filter((t) => !t.completed).slice(0, 10);
-              if (active.length === 0) {
-                showToast("You have no pending tasks to attach.");
-                return;
-              }
-              const summary = active
-                .map((t, i) => `${i + 1}. ${t.text}${t.priority !== "none" ? ` [${t.priority}]` : ""}`)
-                .join("\n");
-              
-              const prefix = chatInput.value.trim() ? `${chatInput.value.trim()}\n\n` : "";
-              chatInput.value = `${prefix}[Context - My Active Tasks]:\n${summary}\n\n`;
-              chatInput.dispatchEvent(new Event("input"));
-              chatInput.focus();
-              showToast("Attached pending tasks to message context.");
-            } else {
-              showToast("Could not load tasks context.");
-            }
-          } catch {
-            showToast("Failed to fetch tasks context.");
-          }
-        } else if (action === "prioritize-tasks") {
-          chatInput.value = "Please prioritize my current tasks and advise what I should tackle first today.";
-          chatInput.dispatchEvent(new Event("input"));
-          chatInput.focus();
-          showToast("Added prioritization prompt.");
-        } else if (action === "breakdown-tasks") {
-          chatInput.value = "Help me break down this task into simple 15-minute action steps: ";
-          chatInput.dispatchEvent(new Event("input"));
-          chatInput.focus();
-          showToast("Added task breakdown prompt.");
-        }
-      });
-    });
-  }
-
-  // Click outside listener
+  // Click outside to close
   document.addEventListener("click", (e) => {
-    if (
-      !dropdownWrapper.hidden &&
-      !dropdownWrapper.contains(e.target) &&
-      !pickerBtn.contains(e.target)
-    ) {
-      closeAllDropdowns();
-    }
-    if (
-      attachDropdown &&
-      !attachDropdown.hidden &&
-      !attachDropdown.contains(e.target) &&
-      !attachBtn.contains(e.target)
-    ) {
-      attachDropdown.hidden = true;
-      attachBtn.setAttribute("aria-expanded", "false");
+    if (!dropdown.hidden && !dropdown.contains(e.target) && !pickerBtn.contains(e.target)) {
+      dropdown.hidden = true;
+      pickerBtn.setAttribute("aria-expanded", "false");
     }
   });
 
   // Escape key to close
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeAllDropdowns();
+    if (e.key === "Escape" && !dropdown.hidden) {
+      dropdown.hidden = true;
+      pickerBtn.setAttribute("aria-expanded", "false");
     }
   });
+}
+
+// Ensure it binds as soon as the DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => initModelPicker());
+} else {
+  initModelPicker();
 }
 
 window.DaylightModels = {
