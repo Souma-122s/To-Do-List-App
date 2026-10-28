@@ -439,19 +439,25 @@ async function streamAiResponse(payload, { userMsgElement = null, wasNewChat = f
           accumulatedText += data.text;
           contentDiv.textContent = accumulatedText;
           messages.scrollTop = messages.scrollHeight;
-        } else if (data.type === "final") {
+        } else if (data.type === "final" || data.type === "done") {
+          const finalContent = data.content || data.reply || accumulatedText;
+          const finalHtml = data.contentHtml || data.replyHtml;
+          if (data.conversationId) {
+            currentConversationId = data.conversationId;
+          }
+
           if (!assistantMsg) {
             typingIndicator.remove();
             assistantMsg = addMessage("assistant", "", { typing: false });
             contentDiv = assistantMsg.querySelector(".chat-message-content");
           }
-          if (data.contentHtml) {
-            contentDiv.innerHTML = data.contentHtml;
+          if (finalHtml) {
+            contentDiv.innerHTML = finalHtml;
           } else {
-            contentDiv.textContent = data.content;
+            contentDiv.textContent = finalContent;
           }
-          assistantMsg.dataset.rawText = data.content;
-          assistantMsg.dataset.messageId = data.messageId;
+          assistantMsg.dataset.rawText = finalContent;
+          assistantMsg.dataset.messageId = data.assistantMessageId || data.messageId || "";
 
           if (Array.isArray(data.addedTasks) && data.addedTasks.length > 0) {
             renderAddedTasksCard(data.addedTasks, contentDiv);
@@ -459,9 +465,15 @@ async function streamAiResponse(payload, { userMsgElement = null, wasNewChat = f
 
           const existingActions = assistantMsg.querySelector(".chat-actions");
           if (existingActions) existingActions.remove();
-          const actions = createMessageActions("assistant", data.content, assistantMsg, contentDiv);
+          const actions = createMessageActions("assistant", finalContent, assistantMsg, contentDiv);
           assistantMsg.querySelector(".chat-bubble-wrap").append(actions);
           messages.scrollTop = messages.scrollHeight;
+
+          // Ensure conversation list in sidebar is refreshed with the latest title
+          if (data.title && wasNewChat) {
+            animateTitleId = currentConversationId;
+          }
+          loadConversations();
         } else if (data.type === "error") {
           throw new Error(data.error);
         }

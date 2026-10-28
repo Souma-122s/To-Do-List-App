@@ -133,6 +133,12 @@ router.post("/api/ai/chat", requireAuth, requireCsrf, aiLimiter, async (req, res
     res.setHeader("Connection", "keep-alive");
     res.flushHeaders?.();
 
+    // Send meta header immediately so client associates the conversation ID
+    res.write(`data: ${JSON.stringify({ type: "meta", conversationId: conv.id })}\n\n`);
+
+    const mightBeTaskRelated = /\b(task|tasks|todo|to-do|add|create|schedule|remind|put on my list|make a list|plan)\b/i.test(message);
+    const toolsToUse = mightBeTaskRelated ? [createTasksTool] : undefined;
+
     try {
       const stream = await executeChatCompletion({
         model: currentModel,
@@ -155,9 +161,7 @@ ${taskContext}
           ...previousHistory,
           { role: "user", content: message },
         ],
-        tools: [createTasksTool],
-        tool_choice: "auto",
-        parallel_tool_calls: false,
+        ...(toolsToUse ? { tools: toolsToUse, tool_choice: "auto", parallel_tool_calls: false } : {}),
         max_tokens: 2500,
         stream: true,
       });

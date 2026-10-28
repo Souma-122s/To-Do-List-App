@@ -9,8 +9,10 @@ const MODEL_DETAILS = {
   "gemini-3.5-flash": { name: "Gemini 3.5 Flash", icon: "🧠" }
 };
 
-let currentSelectedModel = localStorage.getItem("daylight_ai_model") || "gemini-3.1-flash-lite";
-if (!MODEL_DETAILS[currentSelectedModel]) currentSelectedModel = "gemini-3.1-flash-lite";
+let currentSelectedModel = localStorage.getItem("daylight_ai_model") || "gemini-3.5-flash-lite";
+if (!MODEL_DETAILS[currentSelectedModel] || currentSelectedModel === "gemini-3.1-flash-lite") {
+  currentSelectedModel = "gemini-3.5-flash-lite";
+}
 
 function getCurrentModel() {
   return currentSelectedModel;

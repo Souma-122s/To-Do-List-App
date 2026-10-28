@@ -17,7 +17,7 @@ if (!["openai", "gemini"].includes(aiProvider)) {
 export const aiApiKey = aiProvider === "gemini" ? process.env.GEMINI_API_KEY : process.env.OPENAI_API_KEY;
 
 export const aiModel = process.env.AI_MODEL || (aiProvider === "gemini"
-  ? process.env.GEMINI_MODEL || "gemini-3.1-flash-lite"
+  ? process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"
   : process.env.OPENAI_MODEL || "gpt-4o-mini");
 
 export const aiClient = aiApiKey ? new OpenAI({
