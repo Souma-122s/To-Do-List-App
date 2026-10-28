@@ -25,5 +25,16 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "sanitize-html": "^2.18.1"
-  }
+  },
+  "description": "Minimalist full-stack task manager with an intelligent conversational AI assistant, voice dictation, task breakdown, and multi-user authentication.",
+  "author": "Soumapriya Roy",
+  "keywords": [
+    "todo",
+    "task-manager",
+    "ai-assistant",
+    "gemini",
+    "voice-chat",
+    "express",
+    "sqlite"
+  ]
 }

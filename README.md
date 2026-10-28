@@ -8,7 +8,6 @@
 [![Express](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL%20Mode-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-Flash%20Lite-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
-[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 <br/>
 
@@ -160,10 +159,6 @@ Contributions, issues, and feature requests are welcome!
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
 <div align="center">
-  <sub>Built with care by <a href="https://github.com/Souma-122s">Soumapriya Roy</a> ✳</sub>
+  <sub>Daylight • Built with care by <a href="https://github.com/Souma-122s">Soumapriya Roy</a> ✳</sub>
 </div>
