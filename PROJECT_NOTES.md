@@ -467,6 +467,7 @@ When you are ready to deploy Daylight online for real users, keep these **essent
 - *Bug:* `Failed to execute 'json' on 'Response': Unexpected end of JSON input` on deleting AI conversation.
   - *Cause:* `DELETE /api/ai/conversations/:id` returned `204 No Content`, causing `response.json()` to fail on empty response body. Frontend error handling halted sidebar state refresh.
   - *Fix:* Updated server route to return `{ ok: true, id }` and updated client `api()` to safely check `response.status === 204` and `response.text()` before parsing JSON. Added fallback in `confirmDeleteConversation()` to clean up local state if server already deleted the record.
+- *Performance & Polish:* Switched default AI model to **`gemini-3-flash-preview`** (benchmark: ~1.3s response time vs ~20s on 3.5-flash-lite). Added animated glowing Daylight brand symbol (`✳`) in hero screen and custom animated rotating mark with bouncing wave dots for the thinking indicator.
 
 ---
 *Created for your personal notebook. Rest up, refuel, and we will dive into Voice Audio and Attachments!*
