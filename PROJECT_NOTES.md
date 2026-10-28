@@ -455,6 +455,7 @@ When you are ready to deploy Daylight online for real users, keep these **essent
   - Resolved Windows LF/CRLF warnings.
   - Configured GitHub privacy email (`Souma-122s@users.noreply.github.com`).
   - Remote repository connected and published to `https://github.com/Souma-122s/To-Do-List-App`.
+  - Added official MIT License file (`LICENSE`) with copyright to Soumapriya Roy.
   - Upgraded README with shields.io badges, feature tables, architecture tree, and quickstart guide.
 
 ---
