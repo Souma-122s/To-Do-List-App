@@ -4,7 +4,7 @@
 > **Repository / Directory:** `D:\To do List App\todo-app`  
 > **Server Runtime:** Node.js (ES Modules, Express, SQLite via `better-sqlite3`)  
 > **Default Port:** `http://localhost:3000`  
-> **Date:** October 27, 2026  
+> **Date:** October 29, 2026 (Updated)  
 
 ---
 
@@ -15,10 +15,10 @@ Daylight is a full-stack, local-first personal productivity and task management 
 ### Key Capabilities
 - **Task Management (`/`):** Create, complete, reorder, and organize daily tasks with priority sorting, smooth animations, and sound effects.
 - **Daylight AI Assistant (`/ask-ai`):** Context-aware conversational AI that inspects your live active task list, breaks down large projects into manageable steps, suggests priorities, and directly creates tasks into your to-do list via tool execution.
-- **Multi-Model Intelligence:** Real-time switcher between:
-  - ⚡ *Gemini 3.1 Flash Lite* (lowest latency, instant streaming)
-  - ⚖️ *Gemini 3.5 Flash Lite* (balanced reasoning & fast tool usage)
-  - 🧠 *Gemini 3.5 Flash* (deep chain-of-thought planning)
+- **Multi-Model Intelligence (100% Free Gemini Family):** Real-time switcher inside the chatbox:
+  - ⚡ *Gemini 3.8 Flash* (`gemini-3-flash-preview` — Flagship ultra-fast streaming model, ~1.3s response time, default)
+  - ⚖️ *Gemini 3.5 Flash Lite* (`gemini-3.5-flash-lite` — Balanced reasoning for daily planning & task breakdown)
+  - 🧠 *Gemini 3.1 Pro* (`gemini-2.5-pro` — Deep intelligence reasoning for complex logic, multi-step analysis)
 - **Voice Typing & Dictation:** Browser-native and server-side speech recognition with adaptive audio gain for quiet Bluetooth headsets and AirPods.
 - **Account & Security:** Dual-mode authentication (Local Passwordless / Email Sessions + Google OAuth & Facebook Login), CSRF protection, secure HTTP-only cookies, and session encryption.
 - **Responsive Dark/Light Theme:** CSS custom properties with real-time toggle and system preference auto-detection.
@@ -203,6 +203,11 @@ flowchart TD
     H --> I["Fixed 'Kugelschreiber' & '00:01' Timestamp Glitches"]
     I --> J["Added 30x Audio Gain Normalization for AirPods"]
     J --> K["Real-Time Live Typing & Visual Meter Integration"]
+    K --> L["Git Repository Setup & Remote GitHub Sync"]
+    L --> M["Conversation Pinning (📌 Pinned Section & Database Column)"]
+    M --> N["Single-Line Message Bubbles & Daylight Logo Polish"]
+    N --> O["100% Free Gemini Family Switcher & Unlimited Quotas"]
+    O --> P["Recent Chat 1-Click Instant Selection & Zero Deadzones"]
 ```
 
 ### Key Milestones & Fixes in Detail:
@@ -232,6 +237,24 @@ flowchart TD
      *Fix:* Replaced WebM container audio with uncompressed 16kHz PCM WAV audio and added server-side regex timecode stripping.
    - *Issue:* Quiet AirPods microphone recorded near-silence, triggering "No voice detected".  
      *Fix:* Added client-side audio normalization boosting low-gain signals by up to 30x and lowered VAD sensitivity floor.
+
+5. **Pin the Chat (📌) Feature:**
+   - Added `is_pinned` column to `ai_conversations` table in `server/db.js` with composite index.
+   - Created `PATCH /api/ai/conversations/:id/pin` endpoint with auth and CSRF protection.
+   - Built dedicated `📌 PINNED` group header and toggle button with optimistic UI updates in `ai.js` and `styles/ai.css`.
+
+6. **ChatGPT-Style Message Bubble Layout & Logo Polish:**
+   - Fixed text bubble sizing so short messages remain on a single line and wrap naturally at 75% max-width.
+   - Integrated Daylight logo avatar badge (`✳`) on every AI assistant message and thinking indicator with dark/light mode theme support.
+
+7. **Exclusive 100% Free Gemini Model Family:**
+   - Replaced paid/external models with the Google Gemini trio: `Gemini 3.8 Flash` (default ultra-fast streaming, ~1.3s), `Gemini 3.5 Flash Lite` (daily planning), and `Gemini 3.1 Pro` (deep logic).
+   - All 3 models run on the user's single free `GEMINI_API_KEY` ($0 cost, 15 RPM / 1,500 RPD).
+   - Removed artificial usage limits and attachment button cleanly.
+
+8. **Recent Chat One-Click Instant Selection:**
+   - Eliminated dead zones on `.ai-history-item` padding by delegating click events to the outer container and adding `pointer-events: none` on inner text buttons.
+   - Added instant optimistic `.active` highlighting and animated `✳ Loading conversation...` notice, ensuring chats switch on the very first click.
 
 ---
 
