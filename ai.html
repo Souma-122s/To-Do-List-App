@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="theme.js"></script>
-    <link rel="stylesheet" href="styles.css?v=4.9" />
-    <script src="js/ai-models.js?v=2.1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=5.0" />
+    <script src="js/ai-models.js?v=2.2" defer></script>
     <script src="js/ai-voice.js?v=4.6" defer></script>
     <script src="js/ai-account.js?v=2.0" defer></script>
-    <script src="ai.js?v=4.9" defer></script>
+    <script src="ai.js?v=5.0" defer></script>
   </head>
   <body class="ai-page">
     <!-- Premium Full-Screen Intro Screen -->
@@ -114,6 +114,10 @@
         <section class="ai-chat-card is-new-chat" id="ai-chat-card" aria-label="Daylight AI Chat">
           <!-- Centered Hero for New Chat: Random dynamic task/productivity title -->
           <div class="ai-hero-wrap" id="ai-hero-wrap">
+            <div class="ai-hero-brand-symbol" aria-hidden="true">
+              <span class="ai-hero-spark">✳</span>
+              <div class="ai-hero-ambient-ring"></div>
+            </div>
             <h1 class="ai-hero-title" id="ai-hero-title">What’s on your mind today?</h1>
           </div>
 
@@ -143,16 +147,16 @@
                 <div class="ai-model-picker" id="ai-model-picker">
                   <button type="button" class="ai-model-btn" id="ai-model-btn" aria-haspopup="listbox" aria-expanded="false" title="Choose AI model">
                     <span class="ai-model-icon" id="selected-model-icon">⚡</span>
-                    <span class="ai-model-name" id="selected-model-name">Gemini 3.1 Flash Lite</span>
+                    <span class="ai-model-name" id="selected-model-name">Gemini 3 Flash</span>
                     <span class="ai-model-chevron" aria-hidden="true">▾</span>
                   </button>
                   <div class="ai-model-dropdown" id="ai-model-dropdown" role="listbox" hidden>
                     <div class="ai-model-dropdown-header">CHOOSE MODEL</div>
                     
-                    <div class="ai-model-option active" role="option" data-model="gemini-3.1-flash-lite" aria-selected="true">
+                    <div class="ai-model-option active" role="option" data-model="gemini-3-flash-preview" aria-selected="true">
                       <div class="ai-model-option-top">
-                        <span class="ai-model-option-title">⚡ Gemini 3.1 Flash Lite</span>
-                        <span class="ai-model-badge fast">Fastest · 1.5s</span>
+                        <span class="ai-model-option-title">⚡ Gemini 3 Flash</span>
+                        <span class="ai-model-badge fast">Ultra Fast · ~1s</span>
                       </div>
                       <div class="ai-model-option-desc">Instant real-time streaming, lowest latency, agile everyday chatting.</div>
                     </div>

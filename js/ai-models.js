@@ -4,14 +4,14 @@
  */
 
 const MODEL_DETAILS = {
-  "gemini-3.1-flash-lite": { name: "Gemini 3.1 Flash Lite", icon: "⚡" },
+  "gemini-3-flash-preview": { name: "Gemini 3 Flash", icon: "⚡" },
   "gemini-3.5-flash-lite": { name: "Gemini 3.5 Flash Lite", icon: "⚖️" },
   "gemini-3.5-flash": { name: "Gemini 3.5 Flash", icon: "🧠" }
 };
 
-let currentSelectedModel = localStorage.getItem("daylight_ai_model") || "gemini-3.5-flash-lite";
+let currentSelectedModel = localStorage.getItem("daylight_ai_model") || "gemini-3-flash-preview";
 if (!MODEL_DETAILS[currentSelectedModel] || currentSelectedModel === "gemini-3.1-flash-lite") {
-  currentSelectedModel = "gemini-3.5-flash-lite";
+  currentSelectedModel = "gemini-3-flash-preview";
 }
 
 function getCurrentModel() {
@@ -19,7 +19,7 @@ function getCurrentModel() {
 }
 
 function updateModelPickerUI() {
-  const model = MODEL_DETAILS[currentSelectedModel] || MODEL_DETAILS["gemini-3.1-flash-lite"];
+  const model = MODEL_DETAILS[currentSelectedModel] || MODEL_DETAILS["gemini-3-flash-preview"];
   const iconEl = document.querySelector("#selected-model-icon");
   const nameEl = document.querySelector("#selected-model-name");
   if (iconEl) iconEl.textContent = model.icon;

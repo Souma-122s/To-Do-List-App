@@ -17,7 +17,7 @@ if (!["openai", "gemini"].includes(aiProvider)) {
 export const aiApiKey = aiProvider === "gemini" ? process.env.GEMINI_API_KEY : process.env.OPENAI_API_KEY;
 
 export const aiModel = process.env.AI_MODEL || (aiProvider === "gemini"
-  ? process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"
+  ? process.env.GEMINI_MODEL || "gemini-3-flash-preview"
   : process.env.OPENAI_MODEL || "gpt-4o-mini");
 
 export const aiClient = aiApiKey ? new OpenAI({
@@ -52,7 +52,7 @@ export const createTasksTool = {
 };
 
 export const ALLOWED_MODELS = [
-  "gemini-3.1-flash-lite",
+  "gemini-3-flash-preview",
   "gemini-3.5-flash-lite",
   "gemini-3.5-flash",
 ];
@@ -61,12 +61,15 @@ export async function executeChatCompletion(params) {
   try {
     return await aiClient.chat.completions.create(params);
   } catch (err) {
-    if (params.model === "gemini-3.1-flash-lite" && (err?.status === 503 || err?.message?.includes("high demand") || err?.status === 404)) {
-      try {
-        return await aiClient.chat.completions.create({ ...params, model: "gemini-3.1-flash-lite-preview" });
-      } catch {
-        return await aiClient.chat.completions.create({ ...params, model: "gemini-3.5-flash-lite" });
+    if (err?.status === 503 || err?.message?.includes("high demand") || err?.status === 404) {
+      if (params.model !== "gemini-3-flash-preview") {
+        try {
+          return await aiClient.chat.completions.create({ ...params, model: "gemini-3-flash-preview" });
+        } catch {}
       }
+      try {
+        return await aiClient.chat.completions.create({ ...params, model: "gemini-3.5-flash-lite" });
+      } catch {}
     }
     throw err;
   }

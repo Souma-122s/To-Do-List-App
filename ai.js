@@ -342,8 +342,15 @@ function startThinkingIndicator() {
   bubbleWrap.className = "chat-bubble-wrap";
 
   const content = document.createElement("div");
-  content.className = "chat-message-content";
-  content.innerHTML = `<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>`;
+  content.className = "chat-message-content daylight-thinking-box";
+  content.innerHTML = `
+    <div class="daylight-thinking-wrap" aria-label="Daylight is thinking">
+      <span class="daylight-thinking-mark" aria-hidden="true">✳</span>
+      <span class="daylight-thinking-dots">
+        <span></span><span></span><span></span>
+      </span>
+    </div>
+  `;
 
   bubbleWrap.append(content);
   message.append(bubbleWrap);
