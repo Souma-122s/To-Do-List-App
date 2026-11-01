@@ -256,6 +256,11 @@ flowchart TD
    - Eliminated dead zones on `.ai-history-item` padding by delegating click events to the outer container and adding `pointer-events: none` on inner text buttons.
    - Added instant optimistic `.active` highlighting and animated `✳ Loading conversation...` notice, ensuring chats switch on the very first click.
 
+9. **Dark Mode AI Launch Banner Fix (`styles/tasks.css`):**
+   - *Bug:* In dark mode, the subtitle and arrow on the "Ask Daylight AI" hero card on `index.html` were trapped inside bright white rounded boxes.
+   - *Cause:* A dangling trailing comma on `:root[data-theme="dark"] .ai-launch-arrow,` accidentally grouped `.ai-launch-copy small` and `.ai-launch-arrow` into the next `.task-form` rule, applying `background: #fff` and `border-radius: 14px` in dark mode.
+   - *Fix:* Closed both selectors cleanly with `{ color: #b3b0c1; }` and `{ color: #c4b8ff; }`. The card now renders in seamless dark slate and purple.
+
 ---
 
 ## 9. Strategic Analysis for Tomorrow's Features
