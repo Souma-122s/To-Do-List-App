@@ -238,8 +238,8 @@ body, body * { font-weight: 600 !important; }
 :root[data-theme="dark"] .ai-launch-icon,
 :root[data-theme="dark"] .assistant-icon { border-color: #4a4163; color: #c4b8ff; background: #332d49; }
 :root[data-theme="dark"] .ai-launch-copy strong { color: #f0eef7; }
-:root[data-theme="dark"] .ai-launch-copy small,
-:root[data-theme="dark"] .ai-launch-arrow,
+:root[data-theme="dark"] .ai-launch-copy small { color: #b3b0c1; }
+:root[data-theme="dark"] .ai-launch-arrow { color: #c4b8ff; }
 
 /* ==========================================================================
    Daylight Power Features: Due Dates, Priorities, Search, Sort, Inline Edit
