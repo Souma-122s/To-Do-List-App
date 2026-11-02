@@ -261,6 +261,11 @@ flowchart TD
    - *Cause:* A dangling trailing comma on `:root[data-theme="dark"] .ai-launch-arrow,` accidentally grouped `.ai-launch-copy small` and `.ai-launch-arrow` into the next `.task-form` rule, applying `background: #fff` and `border-radius: 14px` in dark mode.
    - *Fix:* Closed both selectors cleanly with `{ color: #b3b0c1; }` and `{ color: #c4b8ff; }`. The card now renders in seamless dark slate and purple.
 
+10. **Productivity OAuth Migration (Facebook ➔ Microsoft):**
+   - Replaced social media-oriented Facebook login with enterprise productivity standard **Microsoft Identity (Azure Entra ID)** via `passport-microsoft`.
+   - Updated database schema with backward-compatible SQLite migration (`provider CHECK(provider IN ('google', 'microsoft'))`).
+   - Integrated official 4-tile Microsoft SVG logo and styling across login gate and account linking manager.
+
 ---
 
 ## 9. Strategic Analysis for Tomorrow's Features
@@ -454,10 +459,10 @@ Daylight reads configuration from `.env` in the project root:
 | `GEMINI_MODEL` | Optional (default: `gemini-3.1-flash-lite`) | Default LLM model used for new conversations. |
 | `GOOGLE_CLIENT_ID` | Optional | Google Cloud Console OAuth 2.0 Web Client ID for Google login. |
 | `GOOGLE_CLIENT_SECRET`| Optional | Google Cloud Console OAuth 2.0 Client Secret. |
-| `GOOGLE_CALLBACK_URL` | Optional | OAuth redirect URI (default: `http://localhost:3000/api/auth/google/callback`). |
-| `FACEBOOK_APP_ID` | Optional | Meta Developer App ID for Facebook Login. |
-| `FACEBOOK_APP_SECRET` | Optional | Meta Developer App Secret for Facebook Login. |
-| `FACEBOOK_CALLBACK_URL`| Optional | Meta OAuth redirect URI (default: `http://localhost:3000/api/auth/facebook/callback`). |
+| `GOOGLE_CALLBACK_URL` | Optional | OAuth redirect URI (default: `http://localhost:3000/auth/google/callback`). |
+| `MICROSOFT_CLIENT_ID` | Optional | Microsoft Entra ID / Azure App Registration Application (client) ID. |
+| `MICROSOFT_CLIENT_SECRET`| Optional | Microsoft App Client Secret Value. |
+| `MICROSOFT_CALLBACK_URL`| Optional | OAuth redirect URI (default: `http://localhost:3000/auth/microsoft/callback`). |
 
 ---
 

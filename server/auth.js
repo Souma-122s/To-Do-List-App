@@ -2,7 +2,7 @@ import "./config.js";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { Strategy as FacebookStrategy } from "passport-facebook";
+import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 import bcrypt from "bcryptjs";
 import rateLimit from "express-rate-limit";
 import { timingSafeEqual } from "node:crypto";
@@ -95,19 +95,19 @@ if (googleClientId && googleClientSecret) {
   }));
 }
 
-export const facebookAppId = process.env.FACEBOOK_APP_ID;
-export const facebookAppSecret = process.env.FACEBOOK_APP_SECRET;
+export const microsoftClientId = process.env.MICROSOFT_CLIENT_ID;
+export const microsoftClientSecret = process.env.MICROSOFT_CLIENT_SECRET;
 
-if (facebookAppId && facebookAppSecret) {
-  passport.use(new FacebookStrategy({
-    clientID: facebookAppId,
-    clientSecret: facebookAppSecret,
-    state: true,
+if (microsoftClientId && microsoftClientSecret) {
+  passport.use(new MicrosoftStrategy({
+    clientID: microsoftClientId,
+    clientSecret: microsoftClientSecret,
     passReqToCallback: true,
-    callbackURL: process.env.FACEBOOK_CALLBACK_URL || `http://localhost:${port}/auth/facebook/callback`,
-    profileFields: ["id", "displayName", "emails"],
+    callbackURL: process.env.MICROSOFT_CALLBACK_URL || `http://localhost:${port}/auth/microsoft/callback`,
+    scope: ["user.read"],
   }, (req, accessToken, refreshToken, profile, done) => {
-    done(null, { provider: "facebook", providerId: profile.id, email: profile.emails?.[0]?.value || null, name: profile.displayName });
+    const email = profile.emails?.find((item) => item.verified !== false)?.value || profile.emails?.[0]?.value || profile._json?.mail || profile._json?.userPrincipalName || null;
+    done(null, { provider: "microsoft", providerId: profile.id, email, name: profile.displayName });
   }));
 }
 

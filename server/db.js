@@ -35,7 +35,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS linked_accounts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    provider TEXT NOT NULL CHECK(provider IN ('google', 'facebook')),
+    provider TEXT NOT NULL CHECK(provider IN ('google', 'microsoft')),
     provider_id TEXT NOT NULL,
     email TEXT,
     display_name TEXT NOT NULL,
@@ -44,6 +44,28 @@ db.exec(`
     UNIQUE(user_id, provider)
   );
 `);
+
+// Backward-compatible migration for linked_accounts check constraint
+const linkedSql = db.prepare("SELECT sql FROM sqlite_master WHERE name = 'linked_accounts'").get()?.sql || "";
+if (linkedSql.includes("'facebook'")) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS linked_accounts_v2 (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      provider TEXT NOT NULL CHECK(provider IN ('google', 'microsoft')),
+      provider_id TEXT NOT NULL,
+      email TEXT,
+      display_name TEXT NOT NULL,
+      linked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(provider, provider_id),
+      UNIQUE(user_id, provider)
+    );
+    INSERT OR IGNORE INTO linked_accounts_v2 (id, user_id, provider, provider_id, email, display_name, linked_at)
+      SELECT id, user_id, provider, provider_id, email, display_name, linked_at FROM linked_accounts WHERE provider != 'facebook';
+    DROP TABLE linked_accounts;
+    ALTER TABLE linked_accounts_v2 RENAME TO linked_accounts;
+  `);
+}
 
 // Ensure tasks table has due_date and priority columns (backward-compatible migration)
 const taskCols = db.prepare("PRAGMA table_info(tasks)").all();
@@ -54,7 +76,7 @@ if (!taskCols.some((col) => col.name === "priority")) {
   db.exec("ALTER TABLE tasks ADD COLUMN priority TEXT NOT NULL DEFAULT 'none'");
 }
 
-for (const user of db.prepare("SELECT id, email, display_name, provider, provider_id FROM users WHERE provider IN ('google', 'facebook')").all()) {
+for (const user of db.prepare("SELECT id, email, display_name, provider, provider_id FROM users WHERE provider IN ('google', 'microsoft')").all()) {
   db.prepare("INSERT OR IGNORE INTO linked_accounts (user_id, provider, provider_id, email, display_name) VALUES (?, ?, ?, ?, ?)")
     .run(user.id, user.provider, user.provider_id, user.email, user.display_name);
 }

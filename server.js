@@ -9,7 +9,7 @@ import { randomBytes } from "node:crypto";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { SQLiteSessionStore } from "./server/db.js";
-import { passport, googleClientId, googleClientSecret, facebookAppId, facebookAppSecret } from "./server/auth.js";
+import { passport, googleClientId, googleClientSecret, microsoftClientId, microsoftClientSecret } from "./server/auth.js";
 import { aiClient, aiProvider } from "./server/ai-service.js";
 import authRoutes from "./server/routes/auth.routes.js";
 import taskRoutes from "./server/routes/tasks.routes.js";
@@ -83,5 +83,5 @@ app.listen(port, () => {
   console.log(`Daylight is running at http://localhost:${port}`);
   if (!aiClient) console.log(`AI chat is disabled. Add ${aiProvider === "gemini" ? "GEMINI_API_KEY" : "OPENAI_API_KEY"} to .env to enable it.`);
   if (!googleClientId || !googleClientSecret) console.log("Google sign-in is disabled until GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set.");
-  if (!facebookAppId || !facebookAppSecret) console.log("Facebook sign-in is disabled until FACEBOOK_APP_ID and FACEBOOK_APP_SECRET are set.");
+  if (!microsoftClientId || !microsoftClientSecret) console.log("Microsoft sign-in is disabled until MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET are set.");
 });

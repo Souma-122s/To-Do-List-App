@@ -12,8 +12,8 @@ import {
   completeLogin,
   googleClientId,
   googleClientSecret,
-  facebookAppId,
-  facebookAppSecret,
+  microsoftClientId,
+  microsoftClientSecret,
 } from "../auth.js";
 import { tasksForUser } from "./tasks.routes.js";
 import { aiClient, aiProvider } from "../ai-service.js";
@@ -58,7 +58,7 @@ router.get("/api/session", (req, res) => {
     tasks: req.user ? tasksForUser(req.user.id) : [],
     providers: {
       google: Boolean(googleClientId && googleClientSecret),
-      facebook: Boolean(facebookAppId && facebookAppSecret),
+      microsoft: Boolean(microsoftClientId && microsoftClientSecret),
     },
     aiEnabled: Boolean(aiClient),
     aiProvider: aiProvider,
@@ -137,12 +137,12 @@ router.post("/api/auth/logout-all", requireAuth, requireCsrf, (req, res, next) =
 });
 
 // Social Authentication Routes
-for (const provider of ["google", "facebook"]) {
-  const strategyEnabled = provider === "google" ? googleClientId && googleClientSecret : facebookAppId && facebookAppSecret;
+for (const provider of ["google", "microsoft"]) {
+  const strategyEnabled = provider === "google" ? googleClientId && googleClientSecret : microsoftClientId && microsoftClientSecret;
 
   router.get(`/auth/${provider}`, (req, res, next) => {
     if (!strategyEnabled) return res.redirect("/?auth=not-configured");
-    passport.authenticate(provider, { scope: provider === "google" ? ["profile", "email"] : ["email"] })(req, res, next);
+    passport.authenticate(provider, { scope: provider === "google" ? ["profile", "email"] : ["user.read"] })(req, res, next);
   });
 
   router.get(`/auth/link/${provider}`, requireAuth, (req, res, next) => {
@@ -152,7 +152,7 @@ for (const provider of ["google", "facebook"]) {
     req.session.pendingOAuthLink = req.user.id;
     req.session.save((error) => {
       if (error) return next(error);
-      passport.authenticate(provider, { scope: provider === "google" ? ["profile", "email"] : ["email"] })(req, res, next);
+      passport.authenticate(provider, { scope: provider === "google" ? ["profile", "email"] : ["user.read"] })(req, res, next);
     });
   });
 
@@ -219,30 +219,30 @@ router.get("/api/accounts", requireAuth, (req, res) => {
     methods: {
       email: Boolean(user.email && user.password_hash),
       google: linkedAccounts.some((account) => account.provider === "google"),
-      facebook: linkedAccounts.some((account) => account.provider === "facebook"),
+      microsoft: linkedAccounts.some((account) => account.provider === "microsoft"),
     },
     linkedAccounts,
     providers: {
       google: Boolean(googleClientId && googleClientSecret),
-      facebook: Boolean(facebookAppId && facebookAppSecret),
+      microsoft: Boolean(microsoftClientId && microsoftClientSecret),
     },
   });
 });
 
 router.post("/api/accounts/link/:provider", requireAuth, requireCsrf, (req, res, next) => {
   const provider = req.params.provider;
-  const configured = provider === "google" ? googleClientId && googleClientSecret : provider === "facebook" ? facebookAppId && facebookAppSecret : false;
+  const configured = provider === "google" ? googleClientId && googleClientSecret : provider === "microsoft" ? microsoftClientId && microsoftClientSecret : false;
   if (!configured) return res.status(503).json({ error: `${provider} sign-in isn’t configured yet.` });
   req.session.pendingOAuthLink = req.user.id;
   req.session.save((error) => {
     if (error) return next(error);
-    passport.authenticate(provider, { scope: provider === "google" ? ["profile", "email"] : ["email"] })(req, res, next);
+    passport.authenticate(provider, { scope: provider === "google" ? ["profile", "email"] : ["user.read"] })(req, res, next);
   });
 });
 
 router.delete("/api/accounts/link/:provider", requireAuth, requireCsrf, (req, res) => {
   const provider = req.params.provider;
-  if (!["google", "facebook"].includes(provider)) return res.status(400).json({ error: "Unsupported account provider." });
+  if (!["google", "microsoft"].includes(provider)) return res.status(400).json({ error: "Unsupported account provider." });
   const user = db.prepare("SELECT password_hash, provider, provider_id FROM users WHERE id = ?").get(req.user.id);
   const methods = db.prepare("SELECT provider FROM linked_accounts WHERE user_id = ?").all(req.user.id);
   if (!user.password_hash && methods.length <= 1) {

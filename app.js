@@ -18,7 +18,7 @@ let toastTimer;
 let csrfToken = "";
 let isRegistering = false;
 let currentUser = null;
-let currentProviders = { google: false, facebook: false };
+let currentProviders = { google: false, microsoft: false };
 let currentAiProvider = "openai";
 
 function showToast(message) {
@@ -32,7 +32,10 @@ function providerIconMarkup(provider) {
   if (provider === "google") {
     return '<svg class="social-logo google-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.88c-.58 2.96-2.25 5.48-4.73 7.18l7.69 5.97c4.49-4.14 7.14-10.24 7.14-17.62Z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.94-2.13 15.92-5.82l-7.69-5.97c-2.13 1.43-4.86 2.27-8.23 2.27-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/></svg>';
   }
-  return '<svg class="social-logo facebook-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.093 10.125 24v-8.438H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.931-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.093 24 18.1 24 12.073Z"/></svg>';
+  if (provider === "microsoft") {
+    return '<svg class="social-logo microsoft-logo" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>';
+  }
+  return "";
 }
 
 async function api(path, options = {}) {
@@ -354,13 +357,15 @@ function setAuthMode(registering) {
 
 function showAuthGate(sessionInfo) {
   csrfToken = sessionInfo.csrfToken;
-  currentProviders = sessionInfo.providers || { google: false, facebook: false };
+  currentProviders = sessionInfo.providers || { google: false, microsoft: false };
   document.querySelector("#app-shell").hidden = true;
-  for (const provider of ["google", "facebook"]) {
+  for (const provider of ["google", "microsoft"]) {
     const button = document.querySelector(`#${provider}-signin`);
     const configured = Boolean(currentProviders[provider]);
-    button.dataset.configured = String(configured);
-    button.title = configured ? `Sign in with ${provider}` : `${provider} sign-in is not available on this server yet`;
+    if (button) {
+      button.dataset.configured = String(configured);
+      button.title = configured ? `Sign in with ${provider}` : `${provider} sign-in is not available on this server yet`;
+    }
   }
   document.querySelector("#auth-divider").hidden = false;
   document.querySelector("#auth-card").dataset.mode = isRegistering ? "register" : "login";
@@ -457,7 +462,7 @@ async function loadSession() {
     }
     if (authStatus || accountLinkStatus) history.replaceState({}, "", location.pathname);
   } catch (error) {
-    showAuthGate({ csrfToken: "", providers: { google: false, facebook: false } });
+    showAuthGate({ csrfToken: "", providers: { google: false, microsoft: false } });
     authError.textContent = `Can’t reach the Daylight server. Start the app using npm start. (${error.message})`;
     authError.hidden = false;
   }
@@ -530,7 +535,7 @@ document.querySelectorAll(".provider-oauth").forEach((button) => {
     const provider = button.dataset.provider;
     if (currentProviders[provider]) window.location.assign(`/auth/${provider}`);
     else {
-      authError.textContent = `${provider === "google" ? "Google" : "Facebook"} sign-in is not available on this server yet. Log in with your email and password for now.`;
+      authError.textContent = `${provider === "google" ? "Google" : "Microsoft"} sign-in is not available on this server yet. Log in with your email and password for now.`;
       authError.hidden = false;
     }
   });
@@ -585,14 +590,14 @@ async function refreshAccountMenu() {
     const signedMethods = [];
     if (result.methods.email) signedMethods.push({ provider: "email", label: "Daylight Account", detail: result.user.email, icon: "@" });
     for (const account of result.linkedAccounts) {
-      signedMethods.push({ provider: account.provider, label: account.provider === "google" ? "Google" : "Facebook", detail: account.email || account.display_name, icon: account.provider === "google" ? "G" : "f" });
+      signedMethods.push({ provider: account.provider, label: account.provider === "google" ? "Google" : "Microsoft", detail: account.email || account.display_name, icon: account.provider === "google" ? "G" : "M" });
     }
     for (const method of signedMethods) {
       const row = document.createElement("div");
       row.className = "linked-account-row";
       const icon = document.createElement("span");
       icon.className = `provider-icon ${method.provider}-icon`;
-      icon.innerHTML = method.provider === "google" || method.provider === "facebook" ? providerIconMarkup(method.provider) : method.icon;
+      icon.innerHTML = method.provider === "google" || method.provider === "microsoft" ? providerIconMarkup(method.provider) : method.icon;
       const description = document.createElement("span");
       description.className = "linked-account-description";
       const title = document.createElement("strong");
@@ -615,16 +620,16 @@ async function refreshAccountMenu() {
       }
       linkedList.append(row);
     }
-    for (const provider of ["google", "facebook"]) {
+    for (const provider of ["google", "microsoft"]) {
       if (result.methods[provider]) continue;
       const link = document.createElement(result.providers[provider] ? "a" : "button");
       link.className = "connect-account-button";
       if (result.providers[provider]) link.href = `/auth/link/${provider}`;
       else {
         link.type = "button";
-        link.addEventListener("click", () => showToast(`${provider === "google" ? "Google" : "Facebook"} sign-in is not available on this server yet.`));
+        link.addEventListener("click", () => showToast(`${provider === "google" ? "Google" : "Microsoft"} sign-in is not available on this server yet.`));
       }
-      link.innerHTML = `${providerIconMarkup(provider)} Connect ${provider === "google" ? "Google" : "Facebook"} account`;
+      link.innerHTML = `${providerIconMarkup(provider)} Connect ${provider === "google" ? "Google" : "Microsoft"} account`;
       actions.append(link);
     }
     renderRememberedAccounts();

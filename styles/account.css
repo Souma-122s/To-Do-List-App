@@ -36,7 +36,7 @@
 .provider-icon { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border: 1px solid #eeedf2; border-radius: 9px; color: #77798a; background: #fff; font: 700 16px Arial, sans-serif; }
 .provider-icon .social-logo { width: 20px; height: 20px; }
 .provider-icon.google-icon { color: #4285f4; }
-.provider-icon.facebook-icon { color: #1877f2; }
+.provider-icon.microsoft-icon { color: #00a4ef; }
 .linked-account-description { flex: 1; }
 .linked-account-description strong { color: #5a5d6d; font-size: 9px; }
 .linked-account-description > span { overflow: hidden; color: #a1a3af; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }

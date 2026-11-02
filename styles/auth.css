@@ -22,7 +22,7 @@
 .provider-oauth > span { flex: 0 1 auto; text-align: center; }
 .social-logo { display: block; width: 20px; height: 20px; flex: 0 0 20px; }
 .google-logo { overflow: visible; }
-.facebook-logo { color: #1877f2; }
+.microsoft-logo { width: 18px; height: 18px; }
 .oauth-button > span:not(.google-g) { white-space: nowrap; }
 .provider-setup-note a { color: #7258d7; font-weight: 600; text-decoration: underline; text-decoration-color: #d5cdf7; text-underline-offset: 2px; }
 .provider-setup-note a:hover { color: #5039b0; }
