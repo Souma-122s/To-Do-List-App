@@ -264,10 +264,11 @@ flowchart TD
    - *Cause:* A dangling trailing comma on `:root[data-theme="dark"] .ai-launch-arrow,` accidentally grouped `.ai-launch-copy small` and `.ai-launch-arrow` into the next `.task-form` rule, applying `background: #fff` and `border-radius: 14px` in dark mode.
    - *Fix:* Closed both selectors cleanly with `{ color: #b3b0c1; }` and `{ color: #c4b8ff; }`. The card now renders in seamless dark slate and purple.
 
-10. **Productivity OAuth Migration (Facebook ➔ Microsoft):**
+10. **Productivity OAuth Migration (Facebook ➔ Microsoft) & Smart Auto-Linking:**
    - Replaced social media-oriented Facebook login with enterprise productivity standard **Microsoft Identity (Azure Entra ID)** via `passport-microsoft`.
    - Updated database schema with backward-compatible SQLite migration (`provider CHECK(provider IN ('google', 'microsoft'))`).
    - Integrated official 4-tile Microsoft SVG logo and styling across login gate and account linking manager.
+   - **Seamless OAuth Auto-Linking:** If a user already created a Daylight account with their email and subsequently logs in via Google or Microsoft using that same verified email, the server now automatically links the provider to their existing account instead of blocking them with `email-in-use`. All tasks and data stay unified under one account.
 
 ---
 
