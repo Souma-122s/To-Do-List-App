@@ -446,7 +446,7 @@ async function loadSession() {
       authError.textContent = "Sign-in with that provider didn’t complete. Try again or use email.";
       authError.hidden = false;
     } else if (authStatus === "email-in-use") {
-      authError.textContent = "That email already belongs to a Daylight account. Log in first, then link Google or Facebook from your profile.";
+      authError.textContent = "That email already belongs to a Daylight account. Log in with your password first, or link Google/Microsoft from your profile.";
       authError.hidden = false;
     }
     if (accountLinkStatus) {

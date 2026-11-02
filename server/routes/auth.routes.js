@@ -39,6 +39,17 @@ function findOrCreateOAuthUserSync(identity) {
 
   const normalizedEmail = email ? normalizeEmail(email) : null;
   const displayName = String(name || displayNameFromEmail(normalizedEmail || "daylight@local")).slice(0, 80);
+
+  // Auto-link: if user already registered with this verified email, attach provider and log them in
+  if (normalizedEmail) {
+    const existing = db.prepare("SELECT id, email, display_name FROM users WHERE email = ?").get(normalizedEmail);
+    if (existing) {
+      db.prepare("INSERT OR IGNORE INTO linked_accounts (user_id, provider, provider_id, email, display_name) VALUES (?, ?, ?, ?, ?)")
+        .run(existing.id, provider, String(providerId), normalizedEmail, displayName);
+      return existing;
+    }
+  }
+
   const result = db
     .prepare("INSERT INTO users (email, display_name, provider, provider_id) VALUES (?, ?, ?, ?)")
     .run(normalizedEmail, displayName, provider, String(providerId));
