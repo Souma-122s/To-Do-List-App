@@ -28,16 +28,6 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
-function providerIconMarkup(provider) {
-  if (provider === "google") {
-    return '<svg class="social-logo google-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.88c-.58 2.96-2.25 5.48-4.73 7.18l7.69 5.97c4.49-4.14 7.14-10.24 7.14-17.62Z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.94-2.13 15.92-5.82l-7.69-5.97c-2.13 1.43-4.86 2.27-8.23 2.27-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/></svg>';
-  }
-  if (provider === "microsoft") {
-    return '<svg class="social-logo microsoft-logo" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>';
-  }
-  return "";
-}
-
 async function api(path, options = {}) {
   const headers = new Headers(options.headers || {});
   if (options.body) headers.set("Content-Type", "application/json");
@@ -412,18 +402,17 @@ async function startAuthenticated(sessionInfo) {
   currentProviders = sessionInfo.providers || currentProviders;
   currentAiProvider = sessionInfo.aiProvider || currentAiProvider;
   document.querySelector("#app-shell").hidden = false;
-  document.querySelector("#account-name").textContent = sessionInfo.user.name || sessionInfo.user.email || "Daylight account";
-  const avatar = document.querySelector("#account-menu-button");
-  avatar.textContent = (sessionInfo.user.name || sessionInfo.user.email || "Y").trim().charAt(0).toUpperCase();
-  avatar.title = "Manage linked accounts and sign-in sessions";
-  document.querySelector("#popover-name").textContent = sessionInfo.user.name || "Daylight account";
-  document.querySelector("#popover-email").textContent = sessionInfo.user.email || "Connected with a social account";
-  document.querySelector("#popover-avatar").textContent = avatar.textContent;
+  window.DaylightAccount?.initAccountPopover(sessionInfo.user, {
+    api,
+    showToast,
+    activeAuth: sessionInfo.activeAuth,
+    onSwitchAccount: switchAccountTo,
+    onSignOutAll: handleSignOutAll,
+  });
   document.querySelector("#account-controls").hidden = false;
   authGate.hidden = true;
   render();
-  rememberAccount(sessionInfo.user);
-  await refreshAccountMenu();
+  await window.DaylightAccount?.refreshAccountMenu({ api, showToast });
   await importLegacyTasks();
   render();
   if (!sessionInfo.aiEnabled) {
@@ -458,7 +447,7 @@ async function loadSession() {
         "not-configured": "Social sign-in isn’t available on this server yet.",
       };
       showToast(messages[accountLinkStatus] || "Account settings updated.");
-      if (sessionInfo.user) await refreshAccountMenu();
+      if (sessionInfo.user) await window.DaylightAccount?.refreshAccountMenu({ api, showToast });
     }
     if (authStatus || accountLinkStatus) history.replaceState({}, "", location.pathname);
   } catch (error) {
@@ -564,135 +553,8 @@ authForm.addEventListener("submit", async (event) => {
   } finally { submit.disabled = false; }
 });
 
-function getRememberedAccounts() {
-  try {
-    const stored = JSON.parse(localStorage.getItem("daylight.accounts.v1") || "[]");
-    return Array.isArray(stored) ? stored.filter((account) => typeof account.email === "string").slice(0, 5) : [];
-  } catch { return []; }
-}
-
-function rememberAccount(user) {
-  if (!user?.email) return;
-  const accounts = getRememberedAccounts().filter((account) => account.email.toLowerCase() !== user.email.toLowerCase());
-  accounts.unshift({ email: user.email, name: user.name || user.email.split("@")[0] });
-  try { localStorage.setItem("daylight.accounts.v1", JSON.stringify(accounts.slice(0, 5))); }
-  catch { /* Remembered accounts are only a convenience; account login remains server-backed. */ }
-}
-
-async function refreshAccountMenu() {
-  if (!currentUser) return;
-  try {
-    const result = await api("/api/accounts");
-    const linkedList = document.querySelector("#linked-account-list");
-    const actions = document.querySelector("#connect-actions");
-    linkedList.replaceChildren();
-    actions.replaceChildren();
-    const signedMethods = [];
-    if (result.methods.email) signedMethods.push({ provider: "email", label: "Daylight Account", detail: result.user.email, icon: "@" });
-    for (const account of result.linkedAccounts) {
-      signedMethods.push({ provider: account.provider, label: account.provider === "google" ? "Google" : "Microsoft", detail: account.email || account.display_name, icon: account.provider === "google" ? "G" : "M" });
-    }
-    for (const method of signedMethods) {
-      const row = document.createElement("div");
-      row.className = "linked-account-row";
-      const icon = document.createElement("span");
-      icon.className = `provider-icon ${method.provider}-icon`;
-      icon.innerHTML = method.provider === "google" || method.provider === "microsoft" ? providerIconMarkup(method.provider) : method.icon;
-      const description = document.createElement("span");
-      description.className = "linked-account-description";
-      const title = document.createElement("strong");
-      title.textContent = method.label;
-      const detail = document.createElement("span");
-      detail.textContent = method.detail || "Connected";
-      description.append(title, detail);
-      const status = document.createElement("span");
-      status.className = "connected-status";
-      status.textContent = "Connected";
-      row.append(icon, description, status);
-      if (method.provider !== "email" && (result.methods.email || result.linkedAccounts.length > 1)) {
-        const unlink = document.createElement("button");
-        unlink.className = "unlink-button";
-        unlink.type = "button";
-        unlink.textContent = "Remove";
-        unlink.setAttribute("aria-label", `Unlink ${method.label}`);
-        unlink.addEventListener("click", () => unlinkProvider(method.provider));
-        row.append(unlink);
-      }
-      linkedList.append(row);
-    }
-    for (const provider of ["google", "microsoft"]) {
-      if (result.methods[provider]) continue;
-      const link = document.createElement(result.providers[provider] ? "a" : "button");
-      link.className = "connect-account-button";
-      if (result.providers[provider]) link.href = `/auth/link/${provider}`;
-      else {
-        link.type = "button";
-        link.addEventListener("click", () => showToast(`${provider === "google" ? "Google" : "Microsoft"} sign-in is not available on this server yet.`));
-      }
-      link.innerHTML = `${providerIconMarkup(provider)} Connect ${provider === "google" ? "Google" : "Microsoft"} account`;
-      actions.append(link);
-    }
-    renderRememberedAccounts();
-  } catch (error) { showToast(error.message); }
-}
-
-function renderRememberedAccounts() {
-  const accounts = getRememberedAccounts();
-  const container = document.querySelector("#saved-accounts");
-  const listElement = document.querySelector("#saved-account-list");
-  listElement.replaceChildren();
-  const others = accounts.filter((account) => account.email.toLowerCase() !== currentUser?.email?.toLowerCase());
-  container.hidden = others.length === 0;
-  for (const account of others) {
-    const button = document.createElement("button");
-    button.className = "saved-account-button";
-    button.type = "button";
-    const avatar = document.createElement("span");
-    avatar.className = "account-avatar-small saved-avatar";
-    avatar.textContent = (account.name || account.email).charAt(0).toUpperCase();
-    const identity = document.createElement("span");
-    identity.innerHTML = `<strong></strong><span></span>`;
-    identity.querySelector("strong").textContent = account.name || account.email;
-    identity.querySelector("span").textContent = account.email;
-    const arrow = document.createElement("span");
-    arrow.className = "saved-account-arrow";
-    arrow.textContent = "↗";
-    button.append(avatar, identity, arrow);
-    button.addEventListener("click", () => switchAccountTo(account.email));
-    listElement.append(button);
-  }
-}
-
-async function unlinkProvider(provider) {
-  try {
-    await api(`/api/accounts/link/${provider}`, { method: "DELETE" });
-    await refreshAccountMenu();
-    showToast(`${provider === "google" ? "Google" : "Facebook"} disconnected.`);
-  } catch (error) { showToast(error.message); }
-}
-
-function setAccountPopover(open) {
-  const button = document.querySelector("#account-menu-button");
-  const popover = document.querySelector("#account-popover");
-  popover.hidden = !open;
-  button.setAttribute("aria-expanded", String(open));
-  if (open) refreshAccountMenu();
-}
-
-document.querySelector("#account-menu-button").addEventListener("click", () => {
-  setAccountPopover(document.querySelector("#account-popover").hidden);
-});
-document.querySelector("#close-account-popover").addEventListener("click", () => setAccountPopover(false));
-document.addEventListener("pointerdown", (event) => {
-  const wrap = document.querySelector(".account-menu-wrap");
-  if (!wrap.contains(event.target)) setAccountPopover(false);
-});
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") setAccountPopover(false);
-});
-
 async function switchAccountTo(email = "") {
-  setAccountPopover(false);
+  window.DaylightAccount?.setAccountPopover(false);
   try {
     await api("/api/auth/logout", { method: "POST", body: JSON.stringify({}) });
     currentUser = null;
@@ -705,17 +567,17 @@ async function switchAccountTo(email = "") {
   } catch (error) { showToast(error.message); }
 }
 
-document.querySelector("#switch-account-button").addEventListener("click", () => switchAccountTo());
-document.querySelector("#sign-out-all-button").addEventListener("click", async () => {
+async function handleSignOutAll() {
   if (!window.confirm("Sign out this Daylight account on all devices and browsers?")) return;
   try {
     await api("/api/auth/logout-all", { method: "POST", body: JSON.stringify({}) });
     currentUser = null;
-    setAccountPopover(false);
+    window.DaylightAccount?.setAccountPopover(false);
+    document.querySelector("#account-controls").hidden = true;
     await loadSession();
     showToast("Signed out of all sessions.");
   } catch (error) { showToast(error.message); }
-});
+}
 
 document.querySelector("#today-label").textContent = new Intl.DateTimeFormat(undefined, {
   weekday: "long", month: "long", day: "numeric",

@@ -44,9 +44,14 @@ export function setRememberedSession(req, rememberMe) {
   req.session.cookie.maxAge = rememberMe === true ? REMEMBERED_SESSION_MS : null;
 }
 
-export function completeLogin(req, res, user, statusCode, next, responseBody) {
+export function completeLogin(req, res, user, statusCode, next, responseBody, provider = "email") {
   req.login(user, (loginError) => {
     if (loginError) return next(loginError);
+    req.session.authMethod = {
+      provider,
+      email: user.email || null,
+      name: user.display_name || null,
+    };
     setRememberedSession(req, req.body?.rememberMe);
     req.session.save((saveError) => {
       if (saveError) return next(saveError);

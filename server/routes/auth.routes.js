@@ -60,12 +60,57 @@ function findOrCreateOAuthUserSync(identity) {
   return db.prepare("SELECT id, email, display_name FROM users WHERE id = ?").get(result.lastInsertRowid);
 }
 
+function resolveActiveAuth(req, userRow, linkedAccounts) {
+  const sessionAuth = req.session?.authMethod;
+  if (sessionAuth?.provider) {
+    return {
+      provider: sessionAuth.provider,
+      email: sessionAuth.email || userRow?.email || null,
+      name: sessionAuth.name || userRow?.display_name || null,
+    };
+  }
+  if (userRow?.provider === "google" || userRow?.provider === "microsoft") {
+    const matched = linkedAccounts.find((account) => account.provider === userRow.provider);
+    return {
+      provider: userRow.provider,
+      email: matched?.email || userRow.email || null,
+      name: matched?.display_name || userRow.display_name || null,
+    };
+  }
+  if (userRow?.email && userRow?.password_hash) {
+    return {
+      provider: "email",
+      email: userRow.email,
+      name: userRow.display_name || null,
+    };
+  }
+  if (linkedAccounts.length > 0) {
+    return {
+      provider: linkedAccounts[0].provider,
+      email: linkedAccounts[0].email || userRow?.email || null,
+      name: linkedAccounts[0].display_name || userRow?.display_name || null,
+    };
+  }
+  return {
+    provider: "email",
+    email: userRow?.email || null,
+    name: userRow?.display_name || null,
+  };
+}
+
 // Session Information
 router.get("/api/session", (req, res) => {
   if (!req.session.csrfToken) req.session.csrfToken = randomBytes(32).toString("hex");
+  let activeAuth = null;
+  if (req.user) {
+    const userRow = db.prepare("SELECT email, display_name, password_hash, provider FROM users WHERE id = ?").get(req.user.id);
+    const linkedAccounts = db.prepare("SELECT provider, email, display_name FROM linked_accounts WHERE user_id = ? ORDER BY linked_at").all(req.user.id);
+    activeAuth = resolveActiveAuth(req, userRow, linkedAccounts);
+  }
   res.set("Cache-Control", "no-store").json({
     csrfToken: req.session.csrfToken,
     user: req.user ? { id: req.user.id, email: req.user.email, name: req.user.display_name } : null,
+    activeAuth,
     tasks: req.user ? tasksForUser(req.user.id) : [],
     providers: {
       google: Boolean(googleClientId && googleClientSecret),
@@ -211,6 +256,11 @@ for (const provider of ["google", "microsoft"]) {
         const user = findOrCreateOAuthUserSync(identity);
         req.login(user, (loginError) => {
           if (loginError) return next(loginError);
+          req.session.authMethod = {
+            provider,
+            email: identity.email ? normalizeEmail(identity.email) : user.email || null,
+            name: identity.name || user.display_name || null,
+          };
           req.session.save((saveError) => (saveError ? next(saveError) : res.redirect("/")));
         });
       } catch (loginError) {
@@ -224,9 +274,11 @@ for (const provider of ["google", "microsoft"]) {
 // Linked Accounts API
 router.get("/api/accounts", requireAuth, (req, res) => {
   const linkedAccounts = db.prepare("SELECT provider, email, display_name, linked_at FROM linked_accounts WHERE user_id = ? ORDER BY linked_at").all(req.user.id);
-  const user = db.prepare("SELECT email, password_hash, provider FROM users WHERE id = ?").get(req.user.id);
+  const user = db.prepare("SELECT email, display_name, password_hash, provider FROM users WHERE id = ?").get(req.user.id);
+  const activeAuth = resolveActiveAuth(req, user, linkedAccounts);
   res.json({
     user: { email: user.email, name: req.user.display_name },
+    activeAuth,
     methods: {
       email: Boolean(user.email && user.password_hash),
       google: linkedAccounts.some((account) => account.provider === "google"),

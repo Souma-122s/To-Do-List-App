@@ -894,7 +894,11 @@ async function initialize() {
       return;
     }
     csrfToken = session.csrfToken;
-    window.DaylightAccount?.initAccountPopover(session.user, { api, showToast });
+    window.DaylightAccount?.initAccountPopover(session.user, {
+      api,
+      showToast,
+      activeAuth: session.activeAuth,
+    });
     window.DaylightModels?.initModelPicker({ showToast });
     window.DaylightVoice?.initVoiceChat({ input, updateSendButtonState, showToast, getCsrfToken: () => csrfToken });
     setChatViewMode(true);

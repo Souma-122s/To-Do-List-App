@@ -9,9 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="theme.js"></script>
-    <link rel="stylesheet" href="styles.css?v=6.3" />
+    <link rel="stylesheet" href="styles.css?v=6.4" />
     <script src="js/scroll.js?v=2.0" defer></script>
-    <script src="app.js" defer></script>
+    <script src="js/ai-account.js?v=2.1" defer></script>
+    <script src="app.js?v=2.0" defer></script>
   </head>
   <body>
     <main class="app-shell" id="app-shell" hidden>
@@ -54,16 +55,15 @@
             <div class="account-menu-wrap">
               <button class="avatar" id="account-menu-button" type="button" aria-label="Open Daylight account menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="account-popover">Y</button>
               <section class="account-popover" id="account-popover" role="dialog" aria-label="Daylight account" hidden>
-                <div class="popover-heading"><div><strong>Daylight account</strong><span>Manage your sign-in options</span></div><button class="popover-close" id="close-account-popover" type="button" aria-label="Close account menu">×</button></div>
+                <div class="popover-heading"><div><strong id="popover-greeting">Daylight account</strong><span>Manage your sign-in options</span></div><button class="popover-close" id="close-account-popover" type="button" aria-label="Close account menu">×</button></div>
                 <div class="current-account-card"><span class="account-avatar-small" id="popover-avatar">Y</span><div><strong id="popover-name"></strong><span id="popover-email"></span></div><span class="current-badge">CURRENT</span></div>
-                <div class="connected-heading">CONNECTED SIGN-IN OPTIONS</div>
+                <div class="connected-heading">SIGNED IN ACCOUNT</div>
                 <div class="linked-account-list" id="linked-account-list"></div>
-                <div class="connect-actions" id="connect-actions"></div>
-                <div class="saved-accounts" id="saved-accounts" hidden><div class="connected-heading">ACCOUNTS ON THIS DEVICE</div><div id="saved-account-list"></div></div>
                 <div class="account-menu-actions">
-                  <button type="button" id="switch-account-button">＋ Add or switch account</button>
+                  <button type="button" id="switch-account-button">＋ Add another account</button>
                   <button type="button" id="sign-out-all-button">Sign out of all accounts</button>
                 </div>
+                <div class="connect-actions" id="connect-actions"></div>
                 <p class="account-menu-note">Social sign-in links a provider to your current Daylight account. Your tasks stay together.</p>
               </section>
             </div>
