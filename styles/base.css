@@ -139,33 +139,33 @@ body {
 
 /* Larger, stronger type for easier everyday reading. */
 :root { -webkit-font-smoothing: auto; }
-.workspace-label, .eyebrow { font-size: 11px; }
-.nav-item { font-size: 14px; font-weight: 700; }
-.nav-count { font-size: 12px; font-weight: 600; }
-.note-title { font-size: 15px; }
-.note-copy { color: #737789; font-size: 13px; }
-.sidebar-footer { color: #747889; font-size: 12px; }
-.date-label { color: #6e7283; font-size: 14px; }
-.account-name { color: #626677; font-size: 13px; font-weight: 600; }
-h1 { font-size: clamp(30px, 3.5vw, 42px); }
-.subheading { color: #6f7384; font-size: 15px; }
-.progress-card strong { font-size: 13px; font-weight: 700; }
-.progress-card small { color: #747789; font-size: 11px; }
-.progress-ring span { font-size: 11px; }
-.task-form input { font-size: 15px; }
+.workspace-label, .eyebrow { font-size: 12px; }
+.nav-item { font-size: 15.5px; font-weight: 700; }
+.nav-count { font-size: 13px; font-weight: 600; }
+.note-title { font-size: 16.5px; }
+.note-copy { color: #737789; font-size: 14px; }
+.sidebar-footer { color: #747889; font-size: 13px; }
+.date-label { color: #6e7283; font-size: 15px; }
+.account-name { color: #626677; font-size: 14.5px; font-weight: 600; }
+h1 { font-size: clamp(32px, 3.4vw, 48px); }
+.subheading { color: #6f7384; font-size: 17px; }
+.progress-card strong { font-size: 14.5px; font-weight: 700; }
+.progress-card small { color: #747789; font-size: 12.5px; }
+.progress-ring span { font-size: 11.5px; }
+.task-form input { font-size: 16px; }
 .task-form input::placeholder { color: #85899a; }
-.task-form button { font-size: 13px; }
-.list-toolbar h2 { font-size: 18px; }
-.list-subtitle { color: #747889; font-size: 12px; }
-.clear-button { color: #6f7384; font-size: 12px; font-weight: 600; }
-.task-text { color: #3f4251; font-size: 14px; }
-.task-date { color: #777b8b; font-size: 11px; }
-.empty-state h3 { font-size: 16px; }
+.task-form button { font-size: 14.5px; }
+.list-toolbar h2 { font-size: 20px; }
+.list-subtitle { color: #747889; font-size: 13.5px; }
+.clear-button { color: #6f7384; font-size: 13.5px; font-weight: 600; }
+.task-text { color: #3f4251; font-size: 15.5px; }
+.task-date { color: #777b8b; font-size: 12.5px; }
+.empty-state h3 { font-size: 18.5px; }
 
-.auth-divider { font-size: 10px; }
+.auth-divider { font-size: 11.5px; }
 
 @media (max-width: 760px) {
-  .nav-item { font-size: 13px; }
+  .nav-item { font-size: 14px; }
 }
 
 /* ==========================================================================

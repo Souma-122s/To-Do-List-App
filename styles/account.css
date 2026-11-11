@@ -54,9 +54,9 @@
   .account-name { max-width: 108px; }
 }
 
-.empty-state p { color: #747889; font-size: 13px; }
-.list-footer { color: #747889; font-size: 12px; }
-.toast { font-size: 14px; }
+.empty-state p { color: #747889; font-size: 14.5px; }
+.list-footer { color: #747889; font-size: 13.5px; }
+.toast { font-size: 14.5px; }
 .assistant-title-wrap h2 { font-size: 15px; }
 .assistant-title-wrap p { color: #717586; font-size: 12px; }
 .assistant-label { font-size: 9px; }
@@ -67,15 +67,15 @@
 .assistant-form textarea { font-size: 13px; }
 .assistant-form textarea::placeholder { color: #85899a; }
 .assistant-footnote { color: #747789; font-size: 10px; }
-.account-popover { font-size: 12px; }
-.popover-heading strong { font-size: 14px; }
-.popover-heading span { color: #747889; font-size: 11px; }
-.current-account-card strong { color: #3f4251; font-size: 12px; }
-.current-account-card div > span { color: #6e7283; font-size: 11px; }
-.connected-heading { color: #737789; font-size: 9px; }
-.linked-account-description strong { color: #494d5d; font-size: 13px; }
-.linked-account-description > span { color: #737789; font-size: 12px; }
-.connected-status { font-size: 10px; }
+.account-popover { font-size: 13.5px; }
+.popover-heading strong { font-size: 15px; }
+.popover-heading span { color: #747889; font-size: 12px; }
+.current-account-card strong { color: #3f4251; font-size: 13.5px; }
+.current-account-card div > span { color: #6e7283; font-size: 12px; }
+.connected-heading { color: #737789; font-size: 10.5px; }
+.linked-account-description strong { color: #494d5d; font-size: 14px; }
+.linked-account-description > span { color: #737789; font-size: 13px; }
+.connected-status { font-size: 11px; }
 
 :root[data-theme="dark"] .account-popover,
 :root[data-theme="dark"] .current-account-card { border-color: #3d3949; background: #292733; }

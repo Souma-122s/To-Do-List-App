@@ -289,6 +289,10 @@ flowchart TD
    - **Bug Fixes in `styles/tasks.css`:** Fixed broken vertical stacking on `.task-form` (`flex-direction: row` default, only switching to column when `:has(.task-form-meta)`) and removed a stray orphaned `radial-gradient` snippet inside `@media (max-width: 560px)`.
    - **Adaptive AI Chat, Hero & Auth Widths (`styles/ai.css`, `styles/intro.css`, `styles/auth.css`):** Parameterized AI chat width (`--ai-stream-max: clamp(720px, 56vw, 960px)`), adopted `100dvh` heights, and widened auth card (`clamp(820px, 66vw, 1020px)`) with compact short-viewport height rules (`max-height: 700px`) for seamless fit across all displays and OS zoom scales.
 
+14. **Comfortable Typography Scale-Up (`styles/base.css`, `styles/account.css`, `styles/tasks.css`, `styles/ai.css`, `styles/ai-controls.css`):**
+   - **Tasks Dashboard (`base.css`, `account.css`, `tasks.css`):** Bumped readability across `1920x1080` (`100%` scale) and smaller screens by scaling labels (`10px-11px` -> `12px-13.5px`), nav items (`14px` -> `15.5px`), topbar date/account (`13px-14px` -> `14.5px-15px`), hero `h1` (`clamp(32px, 3.4vw, 48px)`), subheading (`15px` -> `17px`), task input & items (`14px-15px` -> `15.5px-16px`), Ask AI launch card (`16px`/`13px` -> `17.5px`/`14.5px`), empty state/footer, account popover labels, and fixed `.list-heading-wrap h2` overriding `.list-toolbar h2` down to `16px` (now uniformly `20px`). Kept `.progress-ring span` cleanly centered at `11.5px` inside its `34px` ring core.
+   - **Ask Daylight AI (`ai.css`, `ai-controls.css`):** Increased `.ai-hero-title` to `clamp(28px, 3.4vw, 42px)`, chat message text (`.user-message p` and `.assistant-message .chat-message-content`) to `16px`, `.welcome-message` to `17px`, `.ai-chat-form textarea` to `16.5px`, prompt suggestions (`14px`), footnote (`12.5px`), AI sidebar links/history (`14px`), model switcher button/options (`13.5px`/`14px`), and bumped stylesheet cache-buster to `styles.css?v=6.2` in `index.html` and `ai.html`.
+
 ---
 
 ## 9. Strategic Analysis for Tomorrow's Features
