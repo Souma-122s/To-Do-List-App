@@ -3,6 +3,7 @@
  * Handles user profile display, remembered accounts, OAuth provider linking, and account switching.
  */
 
+(() => {
 let currentUser = null;
 let currentAccountConfig = {};
 
@@ -223,3 +224,4 @@ window.DaylightAccount = {
   switchAccountTo,
   initAccountPopover
 };
+})();
