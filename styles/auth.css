@@ -169,7 +169,7 @@
 @media (min-width: 700px) {
   .auth-card {
     display: grid;
-    width: min(100%, 920px);
+    width: min(100%, clamp(820px, 66vw, 1020px));
     grid-template-columns: minmax(0, .9fr) minmax(340px, 1.1fr);
     align-items: center;
     gap: clamp(38px, 6vw, 78px);

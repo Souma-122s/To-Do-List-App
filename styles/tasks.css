@@ -17,9 +17,9 @@
 body { margin: 0; min-width: 320px; min-height: 100vh; color: var(--ink); background: var(--canvas); }
 button, input { font: inherit; }
 button { cursor: pointer; }
-.app-shell { display: grid; grid-template-columns: 258px minmax(0, 1fr); min-height: 100vh; max-width: 1600px; margin: 0 auto; }
-.sidebar { position: relative; display: flex; flex-direction: column; padding: 34px 20px 22px; background: #fff; border-right: 1px solid #f0f0f4; }
-.brand { display: flex; align-items: center; gap: 10px; width: fit-content; margin: 0 0 58px 8px; color: var(--ink); font: 800 23px Manrope, sans-serif; letter-spacing: -1.2px; text-decoration: none; }
+.app-shell { display: grid; grid-template-columns: clamp(232px, 16.5vw, 276px) minmax(0, 1fr); width: 100%; min-height: 100vh; min-height: 100dvh; }
+.sidebar { position: sticky; top: 0; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow-y: auto; padding: clamp(22px, 3.2vh, 34px) clamp(16px, 1.4vw, 22px) clamp(16px, 2.2vh, 22px); background: #fff; border-right: 1px solid #f0f0f4; }
+.brand { display: flex; align-items: center; gap: 10px; width: fit-content; margin: 0 0 clamp(28px, 4.8vh, 54px) 8px; color: var(--ink); font: 800 23px Manrope, sans-serif; letter-spacing: -1.2px; text-decoration: none; }
 .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 12px; color: #fff; background: var(--purple); font-size: 22px; }
 .brand-period { color: var(--purple); }
 .workspace-label, .eyebrow { color: #a1a4b2; font-size: 10px; font-weight: 700; letter-spacing: 1.35px; }
@@ -64,31 +64,31 @@ button { cursor: pointer; }
 .delete-button { display: grid; width: 28px; height: 28px; place-items: center; border: 0; border-radius: 7px; color: #b6b7c1; background: transparent; font-size: 17px; opacity: 0; transition: .16s; }
 .task-row:hover .delete-button, .delete-button:focus-visible { opacity: 1; }
 .delete-button:hover { color: #d26379; background: #fff2f4; }
-.empty-state { display: none; padding: 45px 15px 43px; border: 1px dashed #e6e4ef; border-radius: 12px; background: #ffffff8c; text-align: center; }
-.empty-state.visible { display: block; }
+.empty-state { display: none; padding: clamp(32px, 5vh, 56px) 20px; border: 1px dashed #e6e4ef; border-radius: 12px; background: #ffffff8c; text-align: center; }
+.empty-state.visible { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: clamp(190px, 28vh, 320px); margin-bottom: 18px; }
 .empty-illustration { display: grid; width: 53px; height: 53px; margin: 0 auto 14px; place-items: center; border-radius: 17px; color: #8066e9; background: #f2efff; font-size: 25px; transform: rotate(-5deg); }
 .empty-state h3 { margin-bottom: 6px; font: 700 14px Manrope, sans-serif; }
 .empty-state p { margin: 0; color: #9b9eac; font-size: 11px; }
-.list-footer { display: flex; justify-content: space-between; margin-top: 18px; color: #a6a8b3; font-size: 10px; }
+.list-footer { display: flex; justify-content: space-between; margin-top: auto; padding-top: 18px; color: #a6a8b3; font-size: 10px; }
 .footer-heart { color: #e58b9c; }
 .toast { position: fixed; right: 24px; bottom: 24px; padding: 12px 17px; border: 1px solid #eeedf4; border-radius: 10px; color: #494b5a; background: white; box-shadow: 0 12px 35px #29213d1c; font-size: 12px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: .22s; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 
 @media (max-width: 760px) {
+  .app-shell { grid-template-columns: 1fr; min-height: 100vh; }
+  .sidebar { position: static; height: auto; overflow: visible; padding: 15px 20px 11px; border-right: 0; border-bottom: 1px solid #f0f0f4; }
   .workspace-label, .sidebar-note, .sidebar-footer { display: none; }
   .nav-list { display: flex; gap: 6px; overflow-x: auto; }
   .nav-item { min-height: 38px; flex: 1; justify-content: center; gap: 7px; padding: 0 10px; white-space: nowrap; font-size: 11px; }
   .nav-count { margin-left: 0; }
   .topbar { height: 60px; }
-  .content-wrap { padding-top: 38px; }
+  .content-wrap { padding-top: 28px; }
 }
 
 @media (max-width: 560px) {
   .topbar { gap: 9px; }
   .theme-toggle { width: 34px; height: 34px; flex-basis: 34px; }
-}
-@media (max-width: 560px) {
   .page-heading { align-items: flex-start; flex-direction: column; gap: 20px; }
   .progress-card { min-width: 0; padding: 9px 12px; }
   .progress-ring { width: 37px; height: 37px; }
@@ -96,9 +96,6 @@ button { cursor: pointer; }
   .task-form { gap: 8px; padding-left: 12px; }
   .task-form button { padding: 0 11px; }
   .task-date { display: none; }
-
-    radial-gradient(ellipse at 60% 95%, #edf7ff 0, transparent 30rem),
-    var(--canvas);
 }
 
 .sidebar {
@@ -185,8 +182,8 @@ body, body * { font-weight: 600 !important; }
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 24px;
-  padding: 20px 22px;
+  margin-top: clamp(16px, 2.2vh, 24px);
+  padding: clamp(14px, 2vh, 20px) clamp(16px, 2vw, 24px);
   border: 1px solid #e7e1fb;
   border-radius: 15px;
   color: inherit;
@@ -246,15 +243,23 @@ body, body * { font-weight: 600 !important; }
    ========================================================================== */
 
 .task-form {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 10px !important;
-  min-height: auto !important;
-  padding: 12px 14px 10px !important;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  min-height: clamp(56px, 6.2vh, 66px);
+  padding: 9px 11px 9px 18px;
   border: 1px solid #eeedf4;
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 8px 25px #34315708;
+}
+.task-form:has(.task-form-meta) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-height: auto;
+  padding: 12px 14px 10px;
 }
 .task-form-main {
   display: flex;
@@ -317,7 +322,7 @@ body, body * { font-weight: 600 !important; }
   align-items: center !important;
   justify-content: space-between !important;
   gap: 16px !important;
-  margin: 36px 0 15px !important;
+  margin: clamp(22px, 3vh, 36px) 0 15px !important;
   flex-wrap: wrap !important;
 }
 .list-heading-wrap h2 {

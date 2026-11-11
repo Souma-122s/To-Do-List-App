@@ -213,6 +213,7 @@ flowchart TD
     Q --> R["Productivity OAuth Migration (Facebook -> Microsoft Identity)"]
     R --> S["Full-Right Auto-Hiding Custom Purple Scrollbars (scroll.js + base.css)"]
     S --> T["Human-Like Neural AI Read Aloud (Gemini TTS + Aoede Voice)"]
+    T --> U["Full-Viewport Responsive Layout Fit Across All Scales (1920x1080+ & Mobile)"]
 ```
 
 ### Key Milestones & Fixes in Detail:
@@ -282,6 +283,11 @@ flowchart TD
    - **Replaced Robotic OS Voices with Google Gemini Native TTS:** Added authenticated, CSRF-protected `POST /api/ai/tts` endpoint cascading across `gemini-3.8-flash-lite-tts` ➔ `gemini-3.8-flash-tts` ➔ `gemini-2.5-flash-preview-tts` using Google's natural neural voice **`Aoede`** (with automatic RIFF/WAVE header normalization for `audio/L16` fallback).
    - **Security & CSP (`server.js`):** Added `blob:` and `data:` to Helmet's `mediaSrc` directive so generated `blob:` WAV audio streams play smoothly in `<audio>`.
    - **Playback UX, Caching & Graceful Fallback (`js/ai-voice.js`, `ai.js`, `styles/ai.css`):** Added animated purple loading spinner (`.is-loading`), persistent visible action bar while generating/playing audio, `AbortController` cancellation, 25-entry LRU `blob:` audio cache for instant replay, stop-on-chat-switch cleanup, and automatic Web Speech API voice-ranked fallback if offline or rate-limited.
+
+13. **Full-Viewport Fluid Scaling & Workspace Fit (`styles/tasks.css`, `styles/base.css`, `styles/ai.css`, `styles/intro.css`, `styles/auth.css`):**
+   - **Edge-to-Edge Desktop Shell (`styles/tasks.css`):** Removed `max-width: 1600px; margin: 0 auto` on `.app-shell` that left black side margins at `1920x1080` (`100%` scale); made `.sidebar` full-height sticky (`100dvh`) with fluid width (`clamp(232px, 16.5vw, 276px)`), expanded `.content-wrap` to `clamp(920px, 76vw, 1340px)`, anchored `.list-footer` cleanly via flex layout, and fixed mobile single-column collapse order (`@media (max-width: 760px)`).
+   - **Bug Fixes in `styles/tasks.css`:** Fixed broken vertical stacking on `.task-form` (`flex-direction: row` default, only switching to column when `:has(.task-form-meta)`) and removed a stray orphaned `radial-gradient` snippet inside `@media (max-width: 560px)`.
+   - **Adaptive AI Chat, Hero & Auth Widths (`styles/ai.css`, `styles/intro.css`, `styles/auth.css`):** Parameterized AI chat width (`--ai-stream-max: clamp(720px, 56vw, 960px)`), adopted `100dvh` heights, and widened auth card (`clamp(820px, 66vw, 1020px)`) with compact short-viewport height rules (`max-height: 700px`) for seamless fit across all displays and OS zoom scales.
 
 ---
 
