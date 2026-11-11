@@ -211,6 +211,7 @@ flowchart TD
     O --> P["Recent Chat 1-Click Instant Selection & Zero Deadzones"]
     P --> Q["Dark Mode Hero Card Pill Fix (:root trailing comma)"]
     Q --> R["Productivity OAuth Migration (Facebook -> Microsoft Identity)"]
+    R --> S["Full-Right Auto-Hiding Custom Purple Scrollbars (scroll.js + base.css)"]
 ```
 
 ### Key Milestones & Fixes in Detail:
@@ -269,6 +270,11 @@ flowchart TD
    - Updated database schema with backward-compatible SQLite migration (`provider CHECK(provider IN ('google', 'microsoft'))`).
    - Integrated official 4-tile Microsoft SVG logo and styling across login gate and account linking manager.
    - **Seamless OAuth Auto-Linking:** If a user already created a Daylight account with their email and subsequently logs in via Google or Microsoft using that same verified email, the server now automatically links the provider to their existing account instead of blocking them with `email-in-use`. All tasks and data stay unified under one account.
+
+11. **Full-Right Auto-Hiding Custom Purple Scrollbar Upgrade (`styles/base.css`, `styles/ai.css`, `styles/intro.css`, `js/scroll.js`):**
+   - **Root Cause Fix (Full-Right Placement):** Removed the 820px max-width trap on the `.ai-chat-card:not(.is-new-chat) .ai-chat-messages` scroll container (expanding scrollport width to 100% with responsive centered padding aligned to `.ai-bottom-dock`), and switched `.ai-app-container` / `.ai-chat-card` sizing in `styles/intro.css` to clean flex fill (`width: 100%`, `flex: 1; height: auto;`). The scrollbar now sits flush on the far-right window edge.
+   - **Custom Daylight Purple Gradient Track & Thumb (`styles/base.css`):** Styled thin pill scrollbars (`8px` main / `6px` panels), hid `::-webkit-scrollbar-button` arrows and track backgrounds, and applied Daylight purple/lavender gradient thumbs in both light and dark modes (with `@supports not selector(::-webkit-scrollbar)` fallback for Firefox so Chrome/Brave 121+ custom thumbs stay active).
+   - **Auto-Hide Scrollbar Controller (`js/scroll.js`):** Added lightweight IIFE controller toggling `.is-scrolling` (1050ms idle fade-out) and `.is-scrollbar-hover` (22px right-edge hover + pointer drag lock) across `.ai-chat-messages`, `.ai-history-list`, `.daylight-scroll`, and `index.html` (`document.documentElement`), wired into `ai.html` and `index.html`.
 
 ---
 

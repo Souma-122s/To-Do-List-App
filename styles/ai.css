@@ -216,13 +216,14 @@
   flex-direction: column;
   gap: 24px;
   overflow-y: auto;
-  width: 100%;
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 18px 20px 28px;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 18px max(12px, calc(50% - 394px)) 28px max(20px, calc(50% - 386px));
   border: 0 !important;
   background: transparent !important;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 .ai-chat-card:not(.is-new-chat) .ai-bottom-dock {
   width: 100%;
