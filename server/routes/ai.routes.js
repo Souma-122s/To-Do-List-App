@@ -478,4 +478,174 @@ router.post("/api/ai/transcribe", requireAuth, requireCsrf, async (req, res) => 
   }
 });
 
+// Natural Neural Text-to-Speech (Google Gemini human AI voices: Aoede, Sulafat, Kore, etc.)
+const TTS_MODELS = [
+  "gemini-3.8-flash-lite-tts",
+  "gemini-3.8-flash-tts",
+  "gemini-2.5-flash-preview-tts",
+];
+
+const ALLOWED_TTS_VOICES = new Set([
+  "Aoede",
+  "Kore",
+  "Sulafat",
+  "Zephyr",
+  "Puck",
+  "Charon",
+  "Fenrir",
+  "Leda",
+]);
+
+function prepareSpeechText(rawText) {
+  let cleaned = String(rawText || "")
+    .replace(/```[\s\S]*?```/g, " See the code example on screen. ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*>\s+/gm, "")
+    .replace(/[*_~|]/g, "")
+    .replace(/https?:\/\/\S+/gi, "link")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleaned.length > 3200) {
+    const slice = cleaned.slice(0, 3200);
+    const lastStop = Math.max(slice.lastIndexOf(". "), slice.lastIndexOf("! "), slice.lastIndexOf("? "));
+    cleaned = (lastStop > 400 ? slice.slice(0, lastStop + 1) : slice).trim();
+  }
+  return cleaned;
+}
+
+function parseSampleRateFromMime(mimeType, fallbackRate = 24000) {
+  const match = String(mimeType || "").match(/rate=(\d+)/i);
+  const parsed = match ? Number(match[1]) : fallbackRate;
+  return Number.isFinite(parsed) && parsed >= 8000 && parsed <= 96000 ? parsed : fallbackRate;
+}
+
+function wrapPcmAsWav(pcmBuffer, sampleRate = 24000, channels = 1, bitsPerSample = 16) {
+  const header = Buffer.alloc(44);
+  const byteRate = (sampleRate * channels * bitsPerSample) / 8;
+  const blockAlign = (channels * bitsPerSample) / 8;
+
+  header.write("RIFF", 0, "ascii");
+  header.writeUInt32LE(36 + pcmBuffer.length, 4);
+  header.write("WAVE", 8, "ascii");
+  header.write("fmt ", 12, "ascii");
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(channels, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(byteRate, 28);
+  header.writeUInt16LE(blockAlign, 32);
+  header.writeUInt16LE(bitsPerSample, 34);
+  header.write("data", 36, "ascii");
+  header.writeUInt32LE(pcmBuffer.length, 40);
+
+  return Buffer.concat([header, pcmBuffer]);
+}
+
+function normalizeTtsAudioBuffer(base64Data, mimeType) {
+  const rawBuffer = Buffer.from(base64Data, "base64");
+  const isWav =
+    rawBuffer.length >= 12 &&
+    rawBuffer.subarray(0, 4).toString("ascii") === "RIFF" &&
+    rawBuffer.subarray(8, 12).toString("ascii") === "WAVE";
+
+  if (isWav) {
+    return { buffer: rawBuffer, mimeType: "audio/wav" };
+  }
+  if (!mimeType || /^audio\/(l16|pcm)/i.test(mimeType) || mimeType === "audio/wav") {
+    const sampleRate = parseSampleRateFromMime(mimeType, 24000);
+    return { buffer: wrapPcmAsWav(rawBuffer, sampleRate), mimeType: "audio/wav" };
+  }
+  return { buffer: rawBuffer, mimeType };
+}
+
+router.post("/api/ai/tts", requireAuth, requireCsrf, async (req, res) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  res.on("close", () => {
+    if (!res.writableEnded) controller.abort();
+  });
+
+  try {
+    const cleanText = prepareSpeechText(req.body?.text);
+    if (!cleanText) {
+      return res.status(400).json({ error: "No text provided to read aloud." });
+    }
+
+    const requestedVoice = String(req.body?.voice || "").trim();
+    const voiceName = ALLOWED_TTS_VOICES.has(requestedVoice) ? requestedVoice : "Aoede";
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(503).json({ error: "Gemini API key is required for natural voice readout." });
+    }
+
+    let lastStatus = 502;
+    let lastError = null;
+
+    for (const model of TTS_MODELS) {
+      if (controller.signal.aborted) break;
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            signal: controller.signal,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: cleanText }] }],
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                  voiceConfig: {
+                    prebuiltVoiceConfig: { voiceName },
+                  },
+                },
+              },
+            }),
+          }
+        );
+
+        const data = await geminiRes.json();
+        if (!geminiRes.ok || data.error) {
+          lastStatus = geminiRes.status || 502;
+          lastError = data.error?.message || `HTTP ${geminiRes.status}`;
+          console.warn(`TTS warning on ${model}:`, lastError);
+          continue;
+        }
+
+        const inlinePart = (data.candidates?.[0]?.content?.parts || []).find((p) => p.inlineData?.data);
+        if (!inlinePart) {
+          lastError = `No audio returned by ${model}.`;
+          continue;
+        }
+
+        const normalized = normalizeTtsAudioBuffer(inlinePart.inlineData.data, inlinePart.inlineData.mimeType);
+        res.set("Content-Type", normalized.mimeType);
+        res.set("Cache-Control", "private, max-age=3600");
+        res.set("X-TTS-Model", model);
+        return res.send(normalized.buffer);
+      } catch (err) {
+        if (err.name === "AbortError") break;
+        lastError = err.message;
+        console.warn(`TTS request failed on ${model}:`, err.message);
+      }
+    }
+
+    if (controller.signal.aborted) return;
+    return res.status(lastStatus === 429 ? 429 : 502).json({
+      error: lastError || "Natural AI voice service is temporarily busy.",
+    });
+  } catch (err) {
+    if (err.name === "AbortError") return;
+    console.error("TTS router error:", err);
+    return res.status(500).json({ error: err.message || "Could not synthesize speech." });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+});
+
 export default router;

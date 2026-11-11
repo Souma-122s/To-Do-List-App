@@ -9,72 +9,254 @@
 
 const VOICE_ICONS = {
   speaker: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>',
+  spinner: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.22-8.56"></path></svg>',
   stop: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>'
 };
 
+const DEFAULT_TTS_VOICE = "Aoede";
+const TTS_CACHE_LIMIT = 25;
+const ttsAudioCache = new Map();
+
 let activeSpeakingBtn = null;
+let activeAudio = null;
+let activeTtsAbort = null;
+let sharedGetCsrfToken = () => "";
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener?.("voiceschanged", () => {
+    window.speechSynthesis.getVoices();
+  });
+}
+
+function resetSpeakButton(button) {
+  if (!button) return;
+  button.classList.remove("is-loading", "is-speaking");
+  button.innerHTML = VOICE_ICONS.speaker;
+  button.title = "Read aloud";
+  button.removeAttribute("aria-busy");
+}
+
+function setButtonLoading(button) {
+  button.classList.remove("is-speaking");
+  button.classList.add("is-loading");
+  button.innerHTML = VOICE_ICONS.spinner;
+  button.title = "Preparing natural voice…";
+  button.setAttribute("aria-busy", "true");
+  activeSpeakingBtn = button;
+}
+
+function setButtonSpeaking(button) {
+  button.classList.remove("is-loading");
+  button.classList.add("is-speaking");
+  button.innerHTML = VOICE_ICONS.stop;
+  button.title = "Stop readout";
+  button.removeAttribute("aria-busy");
+  activeSpeakingBtn = button;
+}
 
 function stopSpeaking() {
+  if (activeTtsAbort) {
+    activeTtsAbort.abort();
+    activeTtsAbort = null;
+  }
+  if (activeAudio) {
+    try {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+      activeAudio.src = "";
+    } catch {
+      // Ignore cleanup errors
+    }
+    activeAudio = null;
+  }
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
   if (activeSpeakingBtn) {
-    activeSpeakingBtn.classList.remove("is-speaking");
-    activeSpeakingBtn.innerHTML = VOICE_ICONS.speaker;
-    activeSpeakingBtn.title = "Read aloud";
+    resetSpeakButton(activeSpeakingBtn);
     activeSpeakingBtn = null;
   }
 }
 
-function toggleReadAloud(text, button, showToast = () => {}) {
+function cacheTtsAudio(cacheKey, objectUrl) {
+  if (ttsAudioCache.has(cacheKey)) {
+    ttsAudioCache.delete(cacheKey);
+  }
+  ttsAudioCache.set(cacheKey, objectUrl);
+  while (ttsAudioCache.size > TTS_CACHE_LIMIT) {
+    const oldestKey = ttsAudioCache.keys().next().value;
+    const oldestUrl = ttsAudioCache.get(oldestKey);
+    ttsAudioCache.delete(oldestKey);
+    if (oldestUrl) URL.revokeObjectURL(oldestUrl);
+  }
+}
+
+function pickBestBrowserVoice(voices) {
+  const english = voices.filter((v) => /^en([-_]|$)/i.test(v.lang));
+  if (english.length === 0) return voices[0] || null;
+
+  const scoreVoice = (voice) => {
+    const name = voice.name || "";
+    let score = 0;
+    if (/Natural|Neural/i.test(name)) score += 60;
+    if (/Google US English|Google UK English/i.test(name)) score += 50;
+    if (/Online/i.test(name)) score += 35;
+    if (/Aria|Ava|Andrew|Emma|Jenny|Guy|Samantha|Sonia|Libby|Ryan/i.test(name)) score += 25;
+    if (!voice.localService) score += 15;
+    if (/en[-_]US/i.test(voice.lang)) score += 10;
+    if (/Microsoft David|Microsoft Zira/i.test(name)) score -= 30;
+    return score;
+  };
+
+  return [...english].sort((a, b) => scoreVoice(b) - scoreVoice(a))[0];
+}
+
+function speakWithBrowserFallback(cleanSpeechText, button, showToast) {
   if (!("speechSynthesis" in window)) {
-    showToast("Voice readout isn't supported in this browser.");
+    if (activeSpeakingBtn === button) {
+      resetSpeakButton(button);
+      activeSpeakingBtn = null;
+    }
+    showToast("Voice readout is temporarily unavailable.");
     return;
   }
 
-  if (window.speechSynthesis.speaking && activeSpeakingBtn === button) {
+  const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
+  utterance.rate = 0.98;
+  utterance.pitch = 1.02;
+
+  const bestVoice = pickBestBrowserVoice(window.speechSynthesis.getVoices());
+  if (bestVoice) utterance.voice = bestVoice;
+
+  utterance.onstart = () => {
+    if (activeSpeakingBtn === button) {
+      setButtonSpeaking(button);
+    }
+  };
+
+  utterance.onend = utterance.onerror = () => {
+    if (activeSpeakingBtn === button) {
+      resetSpeakButton(button);
+      activeSpeakingBtn = null;
+    }
+  };
+
+  setButtonSpeaking(button);
+  window.speechSynthesis.speak(utterance);
+}
+
+async function playNeuralAudioUrl(objectUrl, button, fallbackText, showToast) {
+  if (activeSpeakingBtn !== button) return;
+
+  const audio = new Audio(objectUrl);
+  activeAudio = audio;
+
+  audio.addEventListener("ended", () => {
+    if (activeAudio === audio) activeAudio = null;
+    if (activeSpeakingBtn === button) {
+      resetSpeakButton(button);
+      activeSpeakingBtn = null;
+    }
+  });
+
+  audio.addEventListener("error", () => {
+    if (activeAudio !== audio) return;
+    activeAudio = null;
+    if (activeSpeakingBtn === button) {
+      speakWithBrowserFallback(fallbackText, button, showToast);
+    }
+  });
+
+  try {
+    setButtonSpeaking(button);
+    await audio.play();
+  } catch (err) {
+    if (activeAudio !== audio || err.name === "AbortError") return;
+    activeAudio = null;
+    if (activeSpeakingBtn === button) {
+      speakWithBrowserFallback(fallbackText, button, showToast);
+    }
+  }
+}
+
+async function toggleReadAloud(text, button, showToast = () => {}) {
+  const isAlreadyActive =
+    activeSpeakingBtn === button &&
+    (button.classList.contains("is-speaking") || button.classList.contains("is-loading"));
+
+  if (isAlreadyActive) {
     stopSpeaking();
     return;
   }
 
   stopSpeaking();
 
-  const cleanSpeechText = text
-    .replace(/[`*_#~>]/g, "")
+  const cleanSpeechText = String(text || "")
+    .replace(/```[\s\S]*?```/g, " See the code example on screen. ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*>\s+/gm, "")
+    .replace(/[*_~|]/g, "")
+    .replace(/\s+/g, " ")
     .trim();
 
   if (!cleanSpeechText) return;
 
-  const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
-  utterance.rate = 1.0;
-  utterance.pitch = 1.0;
+  const voice = localStorage.getItem("daylight_ai_voice") || DEFAULT_TTS_VOICE;
+  const cacheKey = `${voice}:${cleanSpeechText}`;
+  const cachedUrl = ttsAudioCache.get(cacheKey);
 
-  const voices = window.speechSynthesis.getVoices();
-  const naturalVoice = voices.find((v) =>
-    v.lang.startsWith("en") &&
-    (v.name.includes("Natural") ||
-      v.name.includes("Google") ||
-      v.name.includes("Samantha") ||
-      v.name.includes("Jenny"))
-  );
-  if (naturalVoice) utterance.voice = naturalVoice;
-
-  utterance.onstart = () => {
-    button.classList.add("is-speaking");
-    button.innerHTML = VOICE_ICONS.stop;
-    button.title = "Stop readout";
+  if (cachedUrl) {
     activeSpeakingBtn = button;
-  };
+    await playNeuralAudioUrl(cachedUrl, button, cleanSpeechText, showToast);
+    return;
+  }
 
-  utterance.onend = utterance.onerror = () => {
-    button.classList.remove("is-speaking");
-    button.innerHTML = VOICE_ICONS.speaker;
-    button.title = "Read aloud";
-    if (activeSpeakingBtn === button) activeSpeakingBtn = null;
-  };
+  const controller = new AbortController();
+  activeTtsAbort = controller;
+  setButtonLoading(button);
 
-  window.speechSynthesis.speak(utterance);
+  try {
+    const csrfToken = sharedGetCsrfToken();
+    const response = await fetch("/api/ai/tts", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({ text: cleanSpeechText, voice }),
+    });
+
+    if (controller.signal.aborted || activeSpeakingBtn !== button) return;
+
+    if (!response.ok) {
+      speakWithBrowserFallback(cleanSpeechText, button, showToast);
+      return;
+    }
+
+    const wavBlob = await response.blob();
+    if (controller.signal.aborted || activeSpeakingBtn !== button) return;
+    if (!wavBlob || wavBlob.size === 0) {
+      speakWithBrowserFallback(cleanSpeechText, button, showToast);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(wavBlob);
+    cacheTtsAudio(cacheKey, objectUrl);
+    if (activeTtsAbort === controller) activeTtsAbort = null;
+
+    await playNeuralAudioUrl(objectUrl, button, cleanSpeechText, showToast);
+  } catch (err) {
+    if (err.name === "AbortError" || activeSpeakingBtn !== button) return;
+    if (activeTtsAbort === controller) activeTtsAbort = null;
+    speakWithBrowserFallback(cleanSpeechText, button, showToast);
+  }
 }
 
 // Downsample raw PCM Float32 buffers to 16,000 Hz
@@ -158,6 +340,9 @@ function encode16kMonoWav(samples) {
 }
 
 function initVoiceChat({ input, updateSendButtonState = () => {}, showToast = () => {}, getCsrfToken = () => "" } = {}) {
+  if (typeof getCsrfToken === "function") {
+    sharedGetCsrfToken = getCsrfToken;
+  }
   const voiceBtn = document.querySelector("#ai-voice-btn");
   const voiceStatus = document.querySelector("#ai-voice-status");
   const voiceText = document.querySelector("#voice-status-text");

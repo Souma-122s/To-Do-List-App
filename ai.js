@@ -688,6 +688,7 @@ async function selectConversation(id) {
     showToast("Please wait until Daylight finishes thinking.");
     return;
   }
+  window.DaylightVoice?.stopSpeaking?.();
 
   // Instant optimistic feedback: highlight the clicked chat immediately on first click
   currentConversationId = id;
@@ -731,6 +732,7 @@ async function selectConversation(id) {
 
 function startNewChat() {
   if (busy) return;
+  window.DaylightVoice?.stopSpeaking?.();
   if (activeTypewriterTimer) {
     clearInterval(activeTypewriterTimer);
     activeTypewriterTimer = null;

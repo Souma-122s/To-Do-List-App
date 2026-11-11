@@ -38,6 +38,7 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:"],
+        mediaSrc: ["'self'", "blob:", "data:"],
         connectSrc: ["'self'"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: isProduction ? [] : null,

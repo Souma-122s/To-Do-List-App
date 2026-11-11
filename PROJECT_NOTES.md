@@ -212,6 +212,7 @@ flowchart TD
     P --> Q["Dark Mode Hero Card Pill Fix (:root trailing comma)"]
     Q --> R["Productivity OAuth Migration (Facebook -> Microsoft Identity)"]
     R --> S["Full-Right Auto-Hiding Custom Purple Scrollbars (scroll.js + base.css)"]
+    S --> T["Human-Like Neural AI Read Aloud (Gemini TTS + Aoede Voice)"]
 ```
 
 ### Key Milestones & Fixes in Detail:
@@ -276,6 +277,11 @@ flowchart TD
    - **Silky GPU-Composited Fade-In & Fade-Out (`styles/base.css`):** Because Chromium does not transition `background-image` / `opacity` natively on `::-webkit-scrollbar-thumb`, hid native scrollbars (`scrollbar-width: none`, `::-webkit-scrollbar { display: none; }`) on managed containers and styled an overlay `.daylight-scrollbar-track` / `.daylight-scrollbar-thumb` / `.daylight-scrollbar-pill` with fast fade-in (`0.16s`), silky fade-out (`0.58s cubic-bezier(0.4, 0, 0.2, 1)` + subtle inward `scaleX(0.55)` taper), hover expansion + purple glow, and full light/dark mode gradients.
    - **Overlay Scrollbar Controller (`js/scroll.js`):** Syncs thumb height and `translate3d` offset across `.ai-chat-messages`, `.ai-history-list`, `.daylight-scroll`, and `index.html` (`document.documentElement`) using `ResizeObserver`, `MutationObserver`, scroll listeners, 900ms idle fade-out, right-edge proximity hover, click-to-jump track support, and 1:1 pointer dragging, wired into `ai.html` and `index.html`.
    - **Thinking Indicator Single-Icon Fix (`ai.js`, `styles/ai.css`):** Removed the redundant left `.message-avatar` box during `.chat-typing` (`startThinkingIndicator()`) so only one spinning `✳ •••` indicator renders while awaiting a response, and the left avatar badge cleanly replaces it as soon as the reply begins.
+
+12. **Human-Like Neural AI Read Aloud (`server/routes/ai.routes.js`, `server.js`, `js/ai-voice.js`, `styles/ai.css`):**
+   - **Replaced Robotic OS Voices with Google Gemini Native TTS:** Added authenticated, CSRF-protected `POST /api/ai/tts` endpoint cascading across `gemini-3.8-flash-lite-tts` ➔ `gemini-3.8-flash-tts` ➔ `gemini-2.5-flash-preview-tts` using Google's natural neural voice **`Aoede`** (with automatic RIFF/WAVE header normalization for `audio/L16` fallback).
+   - **Security & CSP (`server.js`):** Added `blob:` and `data:` to Helmet's `mediaSrc` directive so generated `blob:` WAV audio streams play smoothly in `<audio>`.
+   - **Playback UX, Caching & Graceful Fallback (`js/ai-voice.js`, `ai.js`, `styles/ai.css`):** Added animated purple loading spinner (`.is-loading`), persistent visible action bar while generating/playing audio, `AbortController` cancellation, 25-entry LRU `blob:` audio cache for instant replay, stop-on-chat-switch cleanup, and automatic Web Speech API voice-ranked fallback if offline or rate-limited.
 
 ---
 
