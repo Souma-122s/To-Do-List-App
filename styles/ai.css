@@ -219,11 +219,10 @@
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
-  padding: 18px max(12px, calc(50% - 394px)) 28px max(20px, calc(50% - 386px));
+  padding: 18px max(20px, calc(50% - 390px)) 28px;
   border: 0 !important;
   background: transparent !important;
   scroll-behavior: smooth;
-  scrollbar-gutter: stable;
 }
 .ai-chat-card:not(.is-new-chat) .ai-bottom-dock {
   width: 100%;
