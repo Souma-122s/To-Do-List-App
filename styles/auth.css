@@ -85,11 +85,11 @@
   .assistant-results, .suggestion-item { animation: none !important; }
 }
 
-.account-menu-actions { display: grid; gap: 2px; margin: 13px -4px 0; padding-top: 9px; border-top: 1px solid #f0eff4; }
-.account-menu-actions button { min-height: 32px; padding: 0 7px; border: 0; border-radius: 7px; color: #747787; background: transparent; text-align: left; font-size: 9px; transition: background .18s ease, color .18s ease; }
-.account-menu-actions button:hover { color: #624bc4; background: #f7f5ff; }
-#sign-out-all-button { color: #a26f78; }
-#sign-out-all-button:hover { color: #b5475d; background: #fff4f5; }
+.account-menu-actions { display: grid; gap: 2px; margin: 14px 0 0; }
+.account-menu-actions button { min-height: 44px; padding: 0 16px; border: 0; color: #3c4043; background: transparent; text-align: left; font-size: 13.5px; transition: background .18s ease, color .18s ease; }
+.account-menu-actions button:hover { color: #202124; background: #eef1f7; }
+#sign-out-all-button { color: #b34257; }
+#sign-out-all-button:hover { color: #d9304f; background: #f4eef2; }
 .account-menu-note { margin: 8px 0 0; color: #a4a5b1; font-size: 8px; line-height: 1.5; }
 .saved-accounts[hidden] { display: none; }
 .saved-account-button { display: flex; width: 100%; min-width: 0; align-items: center; gap: 8px; padding: 7px 5px; border: 0; border-radius: 8px; background: transparent; text-align: left; transition: background .16s ease; }

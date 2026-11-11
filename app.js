@@ -369,7 +369,14 @@ async function importLegacyTasks() {
   try { legacy = JSON.parse(localStorage.getItem("daylight.tasks.v1") || "[]"); }
   catch { legacy = []; }
   if (!Array.isArray(legacy) || !legacy.length) return;
-  if (!window.confirm(`Import ${legacy.length} tasks saved in this browser to the signed-in Daylight account?`)) return;
+  const ok = await window.DaylightAccount?.confirmDialog({
+    title: "Import browser tasks?",
+    message: `Import ${legacy.length} tasks saved in this browser to your signed-in Daylight account?`,
+    confirmText: "Import tasks",
+    cancelText: "Skip",
+    danger: false,
+  });
+  if (!ok) return;
   try {
     if (tasks.length === 0) {
       for (const task of legacy.slice(0, 100)) {
@@ -568,7 +575,14 @@ async function switchAccountTo(email = "") {
 }
 
 async function handleSignOutAll() {
-  if (!window.confirm("Sign out this Daylight account on all devices and browsers?")) return;
+  const ok = await window.DaylightAccount?.confirmDialog({
+    title: "Sign out of all accounts?",
+    message: "This will sign out this Daylight account on all devices and browsers.",
+    confirmText: "Sign out",
+    cancelText: "Cancel",
+    danger: true,
+  });
+  if (!ok) return;
   try {
     await api("/api/auth/logout-all", { method: "POST", body: JSON.stringify({}) });
     currentUser = null;

@@ -9,10 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="theme.js"></script>
-    <link rel="stylesheet" href="styles.css?v=6.4" />
+    <link rel="stylesheet" href="styles.css?v=6.5" />
     <script src="js/scroll.js?v=2.0" defer></script>
-    <script src="js/ai-account.js?v=2.2" defer></script>
-    <script src="app.js?v=2.0" defer></script>
+    <script src="js/ai-account.js?v=2.3" defer></script>
+    <script src="app.js?v=2.1" defer></script>
   </head>
   <body>
     <main class="app-shell" id="app-shell" hidden>
@@ -54,14 +54,31 @@
             <span class="account-name" id="account-name"></span>
             <div class="account-menu-wrap">
               <button class="avatar" id="account-menu-button" type="button" aria-label="Open Daylight account menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="account-popover">Y</button>
-              <section class="account-popover" id="account-popover" role="dialog" aria-label="Daylight account" hidden>
-                <div class="popover-heading"><div><strong id="popover-greeting">Daylight account</strong><span>Manage your sign-in options</span></div><button class="popover-close" id="close-account-popover" type="button" aria-label="Close account menu">×</button></div>
-                <div class="current-account-card"><span class="account-avatar-small" id="popover-avatar">Y</span><div><strong id="popover-name"></strong><span id="popover-email"></span></div><span class="current-badge">CURRENT</span></div>
+              <section class="account-popover google-account-popover" id="account-popover" role="dialog" aria-label="Daylight account" hidden>
+                <div class="google-popover-top">
+                  <span class="google-popover-email" id="popover-email"></span>
+                  <button class="popover-close" id="close-account-popover" type="button" aria-label="Close account menu">×</button>
+                </div>
+                <div class="google-popover-hero">
+                  <div class="popover-avatar-wrap" id="popover-avatar-wrap">
+                    <span class="popover-avatar-large" id="popover-avatar">Y</span>
+                    <button class="popover-avatar-edit" id="popover-avatar-edit" type="button" title="Change profile picture" aria-label="Change profile picture">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 7.17 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.17L15 4H9Zm3 13a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Zm0-2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>
+                    </button>
+                    <input type="file" id="popover-avatar-input" accept="image/png,image/jpeg,image/webp" hidden />
+                  </div>
+                  <h3 class="google-popover-greeting" id="popover-greeting">Daylight account</h3>
+                  <p class="google-popover-subtitle">Manage your Daylight account</p>
+                  <button class="popover-avatar-remove" id="popover-avatar-remove" type="button" hidden>Remove profile photo</button>
+                </div>
+                <div class="google-popover-surface">
+
                 <div class="connected-heading">SIGNED IN ACCOUNT</div>
                 <div class="linked-account-list" id="linked-account-list"></div>
+                </div>
                 <div class="account-menu-actions">
-                  <button type="button" id="switch-account-button">＋ Add another account</button>
-                  <button type="button" id="sign-out-all-button">Sign out of all accounts</button>
+                  <button type="button" id="switch-account-button"><span class="menu-action-icon" aria-hidden="true">＋</span><span>Add another account</span></button>
+                  <button type="button" id="sign-out-all-button"><span class="menu-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H5v16h9v-2h2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9Z"/></svg></span><span>Sign out of all accounts</span></button>
                 </div>
                 <div class="connect-actions" id="connect-actions"></div>
                 <p class="account-menu-note">Social sign-in links a provider to your current Daylight account. Your tasks stay together.</p>

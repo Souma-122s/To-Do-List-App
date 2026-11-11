@@ -67,6 +67,12 @@ if (linkedSql.includes("'facebook'")) {
   `);
 }
 
+// Ensure users table has avatar_url column (backward-compatible migration)
+const userCols = db.prepare("PRAGMA table_info(users)").all();
+if (!userCols.some((col) => col.name === "avatar_url")) {
+  db.exec("ALTER TABLE users ADD COLUMN avatar_url TEXT");
+}
+
 // Ensure tasks table has due_date and priority columns (backward-compatible migration)
 const taskCols = db.prepare("PRAGMA table_info(tasks)").all();
 if (!taskCols.some((col) => col.name === "due_date")) {

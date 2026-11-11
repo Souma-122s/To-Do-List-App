@@ -21,20 +21,29 @@ import { aiClient, aiProvider } from "../ai-service.js";
 const router = Router();
 const isProduction = process.env.NODE_ENV === "production";
 
+function syncOAuthAvatar(user, avatarUrl) {
+  if (user && !user.avatar_url && avatarUrl && /^https?:\/\//i.test(String(avatarUrl))) {
+    const clean = String(avatarUrl).slice(0, 1024);
+    db.prepare("UPDATE users SET avatar_url = ? WHERE id = ? AND avatar_url IS NULL").run(clean, user.id);
+    return { ...user, avatar_url: clean };
+  }
+  return user;
+}
+
 function findOrCreateOAuthUserSync(identity) {
-  const { provider, providerId, email, name } = identity;
+  const { provider, providerId, email, name, avatarUrl } = identity;
   const linked = db
     .prepare(
-      "SELECT users.id, users.email, users.display_name FROM linked_accounts JOIN users ON users.id = linked_accounts.user_id WHERE linked_accounts.provider = ? AND linked_accounts.provider_id = ?"
+      "SELECT users.id, users.email, users.display_name, users.avatar_url FROM linked_accounts JOIN users ON users.id = linked_accounts.user_id WHERE linked_accounts.provider = ? AND linked_accounts.provider_id = ?"
     )
     .get(provider, String(providerId));
-  if (linked) return linked;
+  if (linked) return syncOAuthAvatar(linked, avatarUrl);
 
-  const legacy = db.prepare("SELECT id, email, display_name FROM users WHERE provider = ? AND provider_id = ?").get(provider, String(providerId));
+  const legacy = db.prepare("SELECT id, email, display_name, avatar_url FROM users WHERE provider = ? AND provider_id = ?").get(provider, String(providerId));
   if (legacy) {
     db.prepare("INSERT OR IGNORE INTO linked_accounts (user_id, provider, provider_id, email, display_name) VALUES (?, ?, ?, ?, ?)")
       .run(legacy.id, provider, String(providerId), legacy.email, legacy.display_name);
-    return legacy;
+    return syncOAuthAvatar(legacy, avatarUrl);
   }
 
   const normalizedEmail = email ? normalizeEmail(email) : null;
@@ -42,22 +51,23 @@ function findOrCreateOAuthUserSync(identity) {
 
   // Auto-link: if user already registered with this verified email, attach provider and log them in
   if (normalizedEmail) {
-    const existing = db.prepare("SELECT id, email, display_name FROM users WHERE email = ?").get(normalizedEmail);
+    const existing = db.prepare("SELECT id, email, display_name, avatar_url FROM users WHERE email = ?").get(normalizedEmail);
     if (existing) {
       db.prepare("INSERT OR IGNORE INTO linked_accounts (user_id, provider, provider_id, email, display_name) VALUES (?, ?, ?, ?, ?)")
         .run(existing.id, provider, String(providerId), normalizedEmail, displayName);
-      return existing;
+      return syncOAuthAvatar(existing, avatarUrl);
     }
   }
 
+  const cleanAvatar = avatarUrl && /^https?:\/\//i.test(String(avatarUrl)) ? String(avatarUrl).slice(0, 1024) : null;
   const result = db
-    .prepare("INSERT INTO users (email, display_name, provider, provider_id) VALUES (?, ?, ?, ?)")
-    .run(normalizedEmail, displayName, provider, String(providerId));
+    .prepare("INSERT INTO users (email, display_name, provider, provider_id, avatar_url) VALUES (?, ?, ?, ?, ?)")
+    .run(normalizedEmail, displayName, provider, String(providerId), cleanAvatar);
 
   db.prepare("INSERT INTO linked_accounts (user_id, provider, provider_id, email, display_name) VALUES (?, ?, ?, ?, ?)")
     .run(result.lastInsertRowid, provider, String(providerId), normalizedEmail, displayName);
 
-  return db.prepare("SELECT id, email, display_name FROM users WHERE id = ?").get(result.lastInsertRowid);
+  return db.prepare("SELECT id, email, display_name, avatar_url FROM users WHERE id = ?").get(result.lastInsertRowid);
 }
 
 function resolveActiveAuth(req, userRow, linkedAccounts) {
@@ -109,7 +119,7 @@ router.get("/api/session", (req, res) => {
   }
   res.set("Cache-Control", "no-store").json({
     csrfToken: req.session.csrfToken,
-    user: req.user ? { id: req.user.id, email: req.user.email, name: req.user.display_name } : null,
+    user: req.user ? { id: req.user.id, email: req.user.email, name: req.user.display_name, avatarUrl: req.user.avatar_url || null } : null,
     activeAuth,
     tasks: req.user ? tasksForUser(req.user.id) : [],
     providers: {
@@ -134,8 +144,8 @@ router.post("/api/auth/register", authLimiter, requireCsrf, async (req, res, nex
     const result = db
       .prepare("INSERT INTO users (email, display_name, password_hash, provider, provider_id) VALUES (?, ?, ?, 'local', ?)")
       .run(email, name, passwordHash, email);
-    const user = { id: result.lastInsertRowid, email, display_name: name };
-    completeLogin(req, res, user, 201, next, { user: { id: user.id, email, name } });
+    const user = { id: result.lastInsertRowid, email, display_name: name, avatar_url: null };
+    completeLogin(req, res, user, 201, next, { user: { id: user.id, email, name, avatarUrl: null } });
   } catch (error) {
     if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return res.status(409).json({ error: "An account with that email already exists." });
@@ -149,7 +159,7 @@ router.post("/api/auth/login", authLimiter, requireCsrf, (req, res, next) => {
   passport.authenticate("local", (error, user, info) => {
     if (error) return next(error);
     if (!user) return res.status(401).json({ error: info?.message || "Could not sign in." });
-    completeLogin(req, res, user, 200, next, { user: { id: user.id, email: user.email, name: user.display_name } });
+    completeLogin(req, res, user, 200, next, { user: { id: user.id, email: user.email, name: user.display_name, avatarUrl: user.avatar_url || null } });
   })(req, res, next);
 });
 
@@ -243,6 +253,12 @@ for (const provider of ["google", "microsoft"]) {
               String(identity.name || provider).slice(0, 80)
             );
           }
+          if (identity.avatarUrl && /^https?:\/\//i.test(String(identity.avatarUrl))) {
+            db.prepare("UPDATE users SET avatar_url = ? WHERE id = ? AND avatar_url IS NULL").run(
+              String(identity.avatarUrl).slice(0, 1024),
+              linkingUserId
+            );
+          }
           return req.session.save((saveError) => (saveError ? next(saveError) : res.redirect("/?accountLink=success")));
         } catch (linkError) {
           if (linkError.code === "SQLITE_CONSTRAINT_UNIQUE") {
@@ -274,10 +290,10 @@ for (const provider of ["google", "microsoft"]) {
 // Linked Accounts API
 router.get("/api/accounts", requireAuth, (req, res) => {
   const linkedAccounts = db.prepare("SELECT provider, email, display_name, linked_at FROM linked_accounts WHERE user_id = ? ORDER BY linked_at").all(req.user.id);
-  const user = db.prepare("SELECT email, display_name, password_hash, provider FROM users WHERE id = ?").get(req.user.id);
+  const user = db.prepare("SELECT email, display_name, password_hash, provider, avatar_url FROM users WHERE id = ?").get(req.user.id);
   const activeAuth = resolveActiveAuth(req, user, linkedAccounts);
   res.json({
-    user: { email: user.email, name: req.user.display_name },
+    user: { email: user.email, name: req.user.display_name, avatarUrl: user.avatar_url || null },
     activeAuth,
     methods: {
       email: Boolean(user.email && user.password_hash),
@@ -320,6 +336,20 @@ router.delete("/api/accounts/link/:provider", requireAuth, requireCsrf, (req, re
     }
   });
   unlink();
+  res.status(204).end();
+});
+
+router.post("/api/accounts/avatar", requireAuth, requireCsrf, (req, res) => {
+  const dataUrl = typeof req.body?.avatarDataUrl === "string" ? req.body.avatarDataUrl.trim() : "";
+  if (!dataUrl || dataUrl.length > 600000 || !/^data:image\/(png|jpeg|jpg|webp);base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) {
+    return res.status(400).json({ error: "Please choose a valid PNG, JPEG, or WebP photo under 450 KB." });
+  }
+  db.prepare("UPDATE users SET avatar_url = ? WHERE id = ?").run(dataUrl, req.user.id);
+  res.json({ avatarUrl: dataUrl });
+});
+
+router.delete("/api/accounts/avatar", requireAuth, requireCsrf, (req, res) => {
+  db.prepare("UPDATE users SET avatar_url = NULL WHERE id = ?").run(req.user.id);
   res.status(204).end();
 });
 

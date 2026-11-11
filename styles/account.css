@@ -5,29 +5,174 @@
 
 
 .account-controls { display: flex; align-items: center; gap: 11px; }
-.account-name { max-width: 180px; overflow: hidden; color: #777b8b; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.avatar { border: 0; cursor: pointer; }
+.account-name { max-width: 195px; overflow: hidden; color: #777b8b; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { border: 0; cursor: pointer; overflow: hidden; padding: 0; }
+.avatar.has-photo { background: transparent; }
+.avatar-img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-
-.account-menu-wrap { position: relative; }
-.topbar { z-index: 5; }
-.account-menu-wrap { z-index: 6; }
+.account-menu-wrap { position: relative; z-index: 6; }
+.topbar, .ai-topbar { z-index: 120; }
 .account-controls .avatar { transition: box-shadow .2s ease, transform .2s cubic-bezier(.2,.8,.2,1); }
-.account-controls .avatar:hover, .account-controls .avatar[aria-expanded="true"] { transform: translateY(-1px); box-shadow: 0 0 0 4px #7558e817, 0 5px 14px #7658e73a; }
+.account-controls .avatar:hover, .account-controls .avatar[aria-expanded="true"] { transform: translateY(-1px); box-shadow: 0 0 0 4px #7558e822, 0 5px 14px #7658e73a; }
+
 .account-popover[hidden] { display: none; }
-.account-popover { position: absolute; z-index: 10; top: calc(100% + 13px); right: 0; width: min(385px, calc(100vw - 32px)); padding: 16px; border: 1px solid #eeedf4; border-radius: 15px; background: #fff; box-shadow: 0 18px 54px #30284b20; animation: popover-arrive .22s cubic-bezier(.2,.8,.2,1) both; transform-origin: top right; }
-@keyframes popover-arrive { from { opacity: 0; transform: translateY(-5px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.popover-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
-.popover-heading strong, .popover-heading span { display: block; }
-.popover-heading strong { color: #343747; font: 700 12px/1.3 Manrope, sans-serif; }
-.popover-heading span { margin-top: 3px; color: #999baa; font-size: 9px; }
-.popover-close { display: grid; width: 25px; height: 25px; place-items: center; border: 0; border-radius: 7px; color: #9294a2; background: transparent; font-size: 17px; }
-.popover-close:hover { color: #55439e; background: #f5f3fc; }
-.current-account-card { display: flex; min-width: 0; align-items: center; gap: 9px; padding: 10px; border: 1px solid #eeeafa; border-radius: 10px; background: linear-gradient(110deg, #fbfaff, #fff); }
-.account-avatar-small { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(145deg, #b5a4ff, #7759e7); font-size: 11px; font-weight: 700; }
-.current-account-card > div, .linked-account-description { display: grid; flex: 1; min-width: 0; gap: 3px; }
-.current-account-card strong,
-.current-account-card div > span,
+.account-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 14px);
+  right: 0;
+  width: min(440px, calc(100vw - 24px));
+  max-height: calc(100vh - 86px);
+  overflow-y: auto;
+  padding: 20px 22px 18px;
+  border: 1px solid #e3e6ee;
+  border-radius: 28px;
+  background: #f0f4f9;
+  color: #1f1f1f;
+  font-size: 14px;
+  box-shadow: 0 22px 60px rgba(25, 22, 46, 0.22);
+  animation: popover-arrive .22s cubic-bezier(.2,.8,.2,1) both;
+  transform-origin: top right;
+}
+@keyframes popover-arrive { from { opacity: 0; transform: translateY(-6px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Google Chrome / Account Style Header & Hero */
+.google-popover-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 36px;
+  margin-bottom: 12px;
+}
+.google-popover-email {
+  color: #444746;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+.popover-close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #5f6368;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease;
+}
+.popover-close:hover { color: #202124; background: rgba(60, 64, 67, 0.1); }
+
+.google-popover-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.popover-avatar-wrap {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin-bottom: 12px;
+}
+.popover-avatar-large {
+  display: grid;
+  width: 84px;
+  height: 84px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(145deg, #b5a4ff, #7759e7);
+  font-size: 32px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(119, 89, 231, 0.28);
+}
+.popover-avatar-large.has-photo {
+  background: transparent;
+}
+.popover-avatar-edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 2px solid #f0f4f9;
+  border-radius: 50%;
+  color: #3c4043;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, color .16s ease;
+}
+.popover-avatar-edit:hover {
+  transform: scale(1.06);
+  color: #1a73e8;
+  background: #f8f9fa;
+}
+.popover-avatar-edit svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+.google-popover-greeting {
+  margin: 0;
+  color: #1f1f1f;
+  font: 600 22px/1.28 Manrope, "DM Sans", sans-serif;
+  letter-spacing: -0.015em;
+}
+.google-popover-subtitle {
+  margin: 5px 0 0;
+  color: #5f6368;
+  font-size: 13px;
+}
+.popover-avatar-remove {
+  margin-top: 7px;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 999px;
+  color: #6b7280;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease;
+}
+.popover-avatar-remove:hover {
+  color: #c53929;
+  background: rgba(197, 57, 41, 0.08);
+}
+
+.google-popover-surface {
+  padding: 13px 16px;
+  border: 1px solid #e1e6f0;
+  border-radius: 22px;
+  background: #ffffff;
+}
+.connected-heading {
+  margin: 0 0 8px;
+  color: #6c7280;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .85px;
+}
+.linked-account-list { display: grid; gap: 6px; }
+.linked-account-row { display: flex; min-width: 0; align-items: center; gap: 12px; padding: 4px 0; }
+.linked-account-description { display: grid; flex: 1; min-width: 0; gap: 3px; }
 .linked-account-description strong,
 .linked-account-description > span {
   overflow: visible;
@@ -37,31 +182,98 @@
   word-break: break-word;
   line-height: 1.38;
 }
-.current-account-card strong { color: #484b5a; font-size: 10px; }
-.current-account-card div > span { color: #9395a2; font-size: 9px; }
-.current-badge { margin-left: auto; flex-shrink: 0; white-space: nowrap; color: #8a79d1; font-size: 10px; font-weight: 700; letter-spacing: .6px; }
-.connected-heading { margin: 15px 0 7px; color: #a3a4b0; font-size: 8px; font-weight: 700; letter-spacing: .9px; }
-.linked-account-list { display: grid; gap: 5px; }
-.linked-account-row { display: flex; min-width: 0; align-items: center; gap: 10px; padding: 7px 2px; }
-.provider-icon { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border: 1px solid #eeedf2; border-radius: 9px; color: #77798a; background: #fff; font: 700 16px Arial, sans-serif; }
+.provider-icon { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border: 1px solid #e5e8f0; border-radius: 50%; color: #5f6368; background: #fff; font: 700 17px Arial, sans-serif; }
 .provider-icon .social-logo { width: 20px; height: 20px; }
 .provider-icon.google-icon { color: #4285f4; }
 .provider-icon.microsoft-icon { color: #00a4ef; }
-.linked-account-description strong { color: #5a5d6d; font-size: 9px; }
-.linked-account-description > span { color: #a1a3af; font-size: 8px; }
-.connected-status { flex-shrink: 0; white-space: nowrap; color: #65a87d; font-size: 8px; }
-.unlink-button { flex-shrink: 0; white-space: nowrap; padding: 5px 7px; border: 0; border-radius: 6px; color: #a0a1ae; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; }
-.unlink-button:hover { color: #b5475d; background: #fff2f4; }
-.connect-actions { display: grid; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0eff4; }
+.linked-account-description strong { color: #202124; font-size: 14.5px; }
+.linked-account-description > span { color: #5f6368; font-size: 13px; }
+.connected-status { flex-shrink: 0; white-space: nowrap; color: #1e8e3e; font-size: 12px; font-weight: 600; }
+
+/* Google Split-Pill Action Stack */
+.account-popover .account-menu-actions {
+  display: grid;
+  gap: 3px;
+  margin: 10px 0 0;
+  padding: 0;
+  border: 0;
+}
+.account-popover .account-menu-actions button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid #e1e6f0;
+  background: #ffffff;
+  color: #1f1f1f;
+  font: 500 14.5px/1.2 inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+.account-popover #switch-account-button {
+  border-radius: 22px 22px 5px 5px;
+}
+.account-popover #sign-out-all-button {
+  border-radius: 5px 5px 22px 22px;
+  color: #b3261e;
+}
+.account-popover .account-menu-actions button:hover {
+  background: #e6ebf4;
+  color: #202124;
+}
+.account-popover #sign-out-all-button:hover {
+  background: #fbe9ea;
+  color: #a50e0e;
+}
+.menu-action-icon {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  place-items: center;
+  font-size: 18px;
+  line-height: 1;
+}
+.menu-action-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
+
+.connect-actions { display: grid; gap: 8px; margin-top: 10px; }
 .connect-actions:empty { display: none; }
-.connect-account-button { display: flex; min-height: 36px; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid #eeedf3; border-radius: 9px; color: #66697a; background: #fff; font: inherit; font-size: 9px; text-align: left; text-decoration: none; cursor: pointer; transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease; }
-.connect-account-button:hover { transform: translateY(-1px); border-color: #ddd6f6; color: #6851c7; background: #fcfbff; }
-.provider-setup-note { margin: 3px 1px 0; color: #a3a2af; font-size: 8px; line-height: 1.5; }
-.connect-account-button .social-logo { width: 18px; height: 18px; flex-basis: 18px; }
+.connect-account-button {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  border: 1px solid #e1e6f0;
+  border-radius: 22px;
+  color: #1f1f1f;
+  background: #ffffff;
+  font: 500 14px/1.2 inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+.connect-account-button:hover { background: #e6ebf4; border-color: #d0d7e6; color: #202124; }
+.connect-account-button .social-logo { width: 20px; height: 20px; flex-basis: 20px; }
+.account-popover .account-menu-note {
+  margin: 12px 6px 0;
+  color: #5f6368;
+  font-size: 11.5px;
+  line-height: 1.45;
+  text-align: center;
+}
 
 @media (max-width: 560px) {
-  .account-popover { position: fixed; top: 69px; right: 12px; }
+  .account-popover { position: fixed; top: 68px; right: 12px; padding: 18px 16px 16px; }
   .account-name { max-width: 108px; }
+  .google-popover-greeting { font-size: 19px; }
 }
 
 .empty-state p { color: #747889; font-size: 14.5px; }
@@ -77,45 +289,181 @@
 .assistant-form textarea { font-size: 13px; }
 .assistant-form textarea::placeholder { color: #85899a; }
 .assistant-footnote { color: #747789; font-size: 10px; }
-.account-popover { font-size: 13.5px; }
-.popover-heading strong { font-size: 15px; }
-.popover-heading span { color: #747889; font-size: 12px; }
-.current-account-card strong { color: #3f4251; font-size: 13.5px; }
-.current-account-card div > span { color: #6e7283; font-size: 12px; }
-.connected-heading { color: #737789; font-size: 10.5px; }
-.linked-account-description strong { color: #494d5d; font-size: 14px; }
-.linked-account-description > span { color: #737789; font-size: 13px; }
-.connected-status { font-size: 11px; }
 
-:root[data-theme="dark"] .account-popover,
-:root[data-theme="dark"] .current-account-card { border-color: #3d3949; background: #292733; }
-:root[data-theme="dark"] .popover-heading strong,
-:root[data-theme="dark"] .current-account-card strong { color: #f0eef7; }
-:root[data-theme="dark"] .popover-heading span,
-:root[data-theme="dark"] .current-account-card div > span,
-:root[data-theme="dark"] .linked-account-description > span,
-:root[data-theme="dark"] .provider-setup-note,
-:root[data-theme="dark"] .account-menu-note { color: #b5b1c3; }
-:root[data-theme="dark"] .linked-account-description strong { color: #e1deea; }
-:root[data-theme="dark"] .connected-heading { color: #bab6c7; }
-:root[data-theme="dark"] .provider-icon,
-:root[data-theme="dark"] .connect-account-button { border-color: #464352; color: #e0ddea; background: #292833; }
-:root[data-theme="dark"] .account-menu-actions,
-:root[data-theme="dark"] .connect-actions { border-color: #403d4b; }
-:root[data-theme="dark"] .account-menu-actions button { color: #d0cdda; }
-:root[data-theme="dark"] .account-menu-actions button:hover,
-:root[data-theme="dark"] .saved-account-button:hover { color: #d4caff; background: #302d3b; }
-:root[data-theme="dark"] .saved-account-button strong,
-:root[data-theme="dark"] .saved-account-button > span:nth-child(2) > span { color: #e0ddea; }
-:root[data-theme="dark"] .saved-avatar { color: #d4caff; background: #353047; }
-:root[data-theme="dark"] .account-menu-note { color: #b5b1c3; }
-
+/* Dark Theme Overrides (Google Chrome / Account Dark Surface + Pure Black Sign-Out Hover) */
+:root[data-theme="dark"] .account-popover {
+  border-color: #3a3748;
+  background: #201e2b;
+  color: #eef0f8;
+  box-shadow: 0 24px 68px rgba(4, 3, 12, 0.72);
+}
+:root[data-theme="dark"] .google-popover-email { color: #d5d2e3; }
+:root[data-theme="dark"] .popover-close { color: #b5b1c5; }
+:root[data-theme="dark"] .popover-close:hover { color: #ffffff; background: rgba(255, 255, 255, 0.1); }
+:root[data-theme="dark"] .popover-avatar-edit {
+  border-color: #201e2b;
+  color: #ece9f6;
+  background: #2e2c3c;
+}
+:root[data-theme="dark"] .popover-avatar-edit:hover {
+  color: #ffffff;
+  background: #0b0a10;
+}
+:root[data-theme="dark"] .google-popover-greeting { color: #f6f5fb; }
+:root[data-theme="dark"] .google-popover-subtitle,
+:root[data-theme="dark"] .account-popover .account-menu-note { color: #a7a3b8; }
+:root[data-theme="dark"] .popover-avatar-remove { color: #a7a3b8; }
+:root[data-theme="dark"] .popover-avatar-remove:hover { color: #ff8ea1; background: rgba(255, 110, 138, 0.14); }
+:root[data-theme="dark"] .google-popover-surface,
+:root[data-theme="dark"] .account-popover .account-menu-actions button,
+:root[data-theme="dark"] .connect-account-button {
+  border-color: #363344;
+  background: #181722;
+  color: #eae7f4;
+}
+:root[data-theme="dark"] .connected-heading { color: #9f9bb2; }
+:root[data-theme="dark"] .provider-icon { border-color: #3a3748; background: #232130; color: #e0ddea; }
+:root[data-theme="dark"] .linked-account-description strong { color: #f1eff8; }
+:root[data-theme="dark"] .linked-account-description > span { color: #b4b0c5; }
+:root[data-theme="dark"] .connected-status { color: #67c485; }
+:root[data-theme="dark"] .account-popover #switch-account-button:hover,
+:root[data-theme="dark"] .connect-account-button:hover {
+  background: #050508;
+  border-color: #49455c;
+  color: #ffffff;
+}
+:root[data-theme="dark"] .account-popover #sign-out-all-button {
+  color: #f08d9d;
+}
+:root[data-theme="dark"] .account-popover #sign-out-all-button:hover {
+  background: #050508;
+  border-color: #49455c;
+  color: #ff9eb0;
+}
 :root[data-theme="dark"] .account-action-link {
   background: #2b2936;
   border-color: #403d50;
   color: #c9bfff;
 }
-:root[data-theme="dark"] .unlink-button:hover {
+
+/* Custom Daylight Confirmation Modal */
+.daylight-confirm-backdrop[hidden] { display: none; }
+.daylight-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(12, 11, 20, 0.56);
+  backdrop-filter: blur(6px);
+  animation: confirm-fade .16s ease both;
+}
+@keyframes confirm-fade { from { opacity: 0; } to { opacity: 1; } }
+.daylight-confirm-card {
+  width: min(410px, 100%);
+  padding: 24px;
+  border: 1px solid #e4e6ef;
+  border-radius: 22px;
+  background: #ffffff;
+  color: #1f1f1f;
+  box-shadow: 0 24px 64px rgba(17, 15, 36, 0.28);
+  animation: confirm-pop .18s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes confirm-pop { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.daylight-confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.daylight-confirm-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #fdecec;
+  color: #c53929;
+  font-size: 16px;
+  font-weight: 800;
+}
+.daylight-confirm-title {
+  margin: 0;
+  font: 700 18px/1.3 Manrope, "DM Sans", sans-serif;
+}
+.daylight-confirm-message {
+  margin: 0 0 22px;
+  color: #5f6368;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.daylight-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.daylight-confirm-actions button {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font: 600 14px/1 inherit;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+.daylight-confirm-cancel {
+  border: 1px solid #dadce0;
+  background: #ffffff;
+  color: #3c4043;
+}
+.daylight-confirm-cancel:hover {
+  background: #f1f3f4;
+}
+.daylight-confirm-submit {
+  border: 0;
+  background: #c53929;
+  color: #ffffff;
+}
+.daylight-confirm-submit:hover {
+  background: #a52719;
+}
+.daylight-confirm-submit.is-primary {
+  background: #7759e7;
+}
+.daylight-confirm-submit.is-primary:hover {
+  background: #6246cc;
+}
+
+:root[data-theme="dark"] .daylight-confirm-backdrop {
+  background: rgba(5, 4, 12, 0.72);
+}
+:root[data-theme="dark"] .daylight-confirm-card {
+  border-color: #3c384b;
+  background: #1d1b27;
+  color: #f3f1fa;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.65);
+}
+:root[data-theme="dark"] .daylight-confirm-icon {
+  background: rgba(240, 141, 157, 0.14);
   color: #ff8ea1;
-  background: rgba(255, 110, 138, 0.14);
+}
+:root[data-theme="dark"] .daylight-confirm-message {
+  color: #b7b3c9;
+}
+:root[data-theme="dark"] .daylight-confirm-cancel {
+  border-color: #3f3b4f;
+  background: #272434;
+  color: #e6e3f2;
+}
+:root[data-theme="dark"] .daylight-confirm-cancel:hover {
+  background: #050508;
+  color: #ffffff;
+}
+:root[data-theme="dark"] .daylight-confirm-submit {
+  background: #c5394f;
+  color: #ffffff;
+}
+:root[data-theme="dark"] .daylight-confirm-submit:hover {
+  background: #a3263a;
 }

@@ -64,7 +64,7 @@ export function completeLogin(req, res, user, statusCode, next, responseBody, pr
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
   try {
-    done(null, db.prepare("SELECT id, email, display_name FROM users WHERE id = ?").get(id) || false);
+    done(null, db.prepare("SELECT id, email, display_name, avatar_url FROM users WHERE id = ?").get(id) || false);
   } catch (error) {
     done(error);
   }
@@ -77,7 +77,7 @@ passport.use(new LocalStrategy({ usernameField: "email", passwordField: "passwor
     if (!user) return done(null, false, { message: "Email or password is incorrect." });
     bcrypt.compare(password, user.password_hash).then((valid) => {
       if (!valid) return done(null, false, { message: "Email or password is incorrect." });
-      return done(null, { id: user.id, email: user.email, display_name: user.display_name });
+      return done(null, { id: user.id, email: user.email, display_name: user.display_name, avatar_url: user.avatar_url || null });
     }).catch(done);
   } catch (error) { done(error); }
 }));
@@ -96,7 +96,8 @@ if (googleClientId && googleClientSecret) {
     callbackURL: process.env.GOOGLE_CALLBACK_URL || `http://localhost:${port}/auth/google/callback`,
   }, (req, accessToken, refreshToken, profile, done) => {
     const email = profile.emails?.find((item) => item.verified !== false)?.value || profile.emails?.[0]?.value || null;
-    done(null, { provider: "google", providerId: profile.id, email, name: profile.displayName });
+    const avatarUrl = profile.photos?.[0]?.value || profile._json?.picture || null;
+    done(null, { provider: "google", providerId: profile.id, email, name: profile.displayName, avatarUrl });
   }));
 }
 
@@ -112,7 +113,8 @@ if (microsoftClientId && microsoftClientSecret) {
     scope: ["user.read"],
   }, (req, accessToken, refreshToken, profile, done) => {
     const email = profile.emails?.find((item) => item.verified !== false)?.value || profile.emails?.[0]?.value || profile._json?.mail || profile._json?.userPrincipalName || null;
-    done(null, { provider: "microsoft", providerId: profile.id, email, name: profile.displayName });
+    const avatarUrl = profile.photos?.[0]?.value || null;
+    done(null, { provider: "microsoft", providerId: profile.id, email, name: profile.displayName, avatarUrl });
   }));
 }
 

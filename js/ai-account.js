@@ -6,6 +6,151 @@
 (() => {
 let currentUser = null;
 let currentAccountConfig = {};
+let activeConfirmResolve = null;
+
+function renderAvatarEl(el, user, initial) {
+  if (!el) return;
+  el.replaceChildren();
+  const avatarUrl = typeof user?.avatarUrl === "string" ? user.avatarUrl.trim() : "";
+  if (avatarUrl) {
+    const img = document.createElement("img");
+    img.className = "avatar-img";
+    img.alt = user?.name ? `${user.name} profile picture` : "Profile picture";
+    img.referrerPolicy = "no-referrer";
+    img.src = avatarUrl;
+    img.addEventListener("error", () => {
+      el.classList.remove("has-photo");
+      el.replaceChildren();
+      el.textContent = initial;
+    });
+    el.classList.add("has-photo");
+    el.append(img);
+    return;
+  }
+  el.classList.remove("has-photo");
+  el.textContent = initial;
+}
+
+function applyUserAvatars(user) {
+  const initial = (user?.name || user?.email || "Y").trim().charAt(0).toUpperCase();
+  renderAvatarEl(document.querySelector("#account-menu-button"), user, initial);
+  renderAvatarEl(document.querySelector("#popover-avatar"), user, initial);
+  const removeBtn = document.querySelector("#popover-avatar-remove");
+  if (removeBtn) removeBtn.hidden = !user?.avatarUrl;
+}
+
+function resizeAvatarImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) {
+      reject(new Error("Please choose a PNG, JPEG, or WebP image file."));
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      reject(new Error("Please choose an image smaller than 15 MB."));
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const size = 240;
+        const srcSide = Math.min(img.naturalWidth || img.width, img.naturalHeight || img.height);
+        const sx = Math.max(0, Math.floor(((img.naturalWidth || img.width) - srcSide) / 2));
+        const sy = Math.max(0, Math.floor(((img.naturalHeight || img.height) - srcSide) / 2));
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, sx, sy, srcSide, srcSide, 0, 0, size, size);
+        let dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+        if (dataUrl.length > 560000) dataUrl = canvas.toDataURL("image/jpeg", 0.72);
+        resolve(dataUrl);
+      } catch (err) {
+        reject(new Error("Could not process that image file."));
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Could not read that image file."));
+    };
+    img.src = objectUrl;
+  });
+}
+
+function ensureConfirmDialog() {
+  let backdrop = document.querySelector("#daylight-confirm-backdrop");
+  if (backdrop) return backdrop;
+
+  backdrop = document.createElement("div");
+  backdrop.className = "daylight-confirm-backdrop";
+  backdrop.id = "daylight-confirm-backdrop";
+  backdrop.setAttribute("role", "presentation");
+  backdrop.hidden = true;
+  backdrop.innerHTML = `
+    <div class="daylight-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="daylight-confirm-title" aria-describedby="daylight-confirm-message">
+      <div class="daylight-confirm-header">
+        <span class="daylight-confirm-icon" aria-hidden="true">!</span>
+        <h3 class="daylight-confirm-title" id="daylight-confirm-title"></h3>
+      </div>
+      <p class="daylight-confirm-message" id="daylight-confirm-message"></p>
+      <div class="daylight-confirm-actions">
+        <button type="button" class="daylight-confirm-cancel" id="daylight-confirm-cancel"></button>
+        <button type="button" class="daylight-confirm-submit" id="daylight-confirm-submit"></button>
+      </div>
+    </div>
+  `;
+  document.body.append(backdrop);
+
+  const settle = (value) => {
+    backdrop.hidden = true;
+    if (activeConfirmResolve) {
+      const done = activeConfirmResolve;
+      activeConfirmResolve = null;
+      done(value);
+    }
+  };
+
+  backdrop.addEventListener("pointerdown", (e) => {
+    if (e.target === backdrop) settle(false);
+  });
+  backdrop.querySelector("#daylight-confirm-cancel")?.addEventListener("click", () => settle(false));
+  backdrop.querySelector("#daylight-confirm-submit")?.addEventListener("click", () => settle(true));
+  return backdrop;
+}
+
+function confirmDialog({
+  title = "Are you sure?",
+  message = "",
+  confirmText = "Continue",
+  cancelText = "Cancel",
+  danger = true,
+} = {}) {
+  const backdrop = ensureConfirmDialog();
+  if (activeConfirmResolve) {
+    activeConfirmResolve(false);
+    activeConfirmResolve = null;
+  }
+
+  backdrop.querySelector("#daylight-confirm-title").textContent = title;
+  backdrop.querySelector("#daylight-confirm-message").textContent = message;
+  const cancelBtn = backdrop.querySelector("#daylight-confirm-cancel");
+  const submitBtn = backdrop.querySelector("#daylight-confirm-submit");
+  const iconEl = backdrop.querySelector(".daylight-confirm-icon");
+
+  cancelBtn.textContent = cancelText;
+  submitBtn.textContent = confirmText;
+  submitBtn.classList.toggle("is-primary", !danger);
+  if (iconEl) iconEl.textContent = danger ? "!" : "?";
+
+  backdrop.hidden = false;
+  requestAnimationFrame(() => cancelBtn.focus());
+
+  return new Promise((resolve) => {
+    activeConfirmResolve = resolve;
+  });
+}
 
 function formatAccountGreeting(user) {
   const hour = new Date().getHours();
@@ -74,6 +219,10 @@ async function refreshAccountMenu({ api, showToast } = {}) {
       email: result.user?.email,
       name: result.user?.name,
     };
+    if (result.user) {
+      currentUser = { ...currentUser, ...result.user };
+      applyUserAvatars(currentUser);
+    }
     const activeEmail = active.email || result.user?.email || "Connected with a social account";
     const popoverEmail = document.querySelector("#popover-email");
     if (popoverEmail) popoverEmail.textContent = activeEmail;
@@ -159,20 +308,15 @@ function initAccountPopover(user, { api, showToast, activeAuth, onSwitchAccount,
   const greetingEl = document.querySelector("#popover-greeting");
   const popoverName = document.querySelector("#popover-name");
   const popoverEmail = document.querySelector("#popover-email");
-  const popoverAvatar = document.querySelector("#popover-avatar");
 
   const displayName = user.name || user.email || "Daylight account";
-  const initial = (user.name || user.email || "Y").trim().charAt(0).toUpperCase();
 
   if (nameEl) nameEl.textContent = displayName;
-  if (avatarBtn) {
-    avatarBtn.textContent = initial;
-    avatarBtn.title = "Manage Daylight account and sessions";
-  }
+  if (avatarBtn) avatarBtn.title = "Manage Daylight account and sessions";
   if (greetingEl) greetingEl.textContent = formatAccountGreeting(user);
   if (popoverName) popoverName.textContent = user.name || "Daylight account";
   if (popoverEmail) popoverEmail.textContent = activeAuth?.email || user.email || "Connected with a social account";
-  if (popoverAvatar) popoverAvatar.textContent = initial;
+  applyUserAvatars(user);
 
   const wrap = document.querySelector(".account-menu-wrap");
   if (!wrap || wrap.dataset.accountBound === "true") return;
@@ -186,13 +330,80 @@ function initAccountPopover(user, { api, showToast, activeAuth, onSwitchAccount,
 
   document.querySelector("#close-account-popover")?.addEventListener("click", () => setAccountPopover(false));
 
+  const avatarInput = document.querySelector("#popover-avatar-input");
+  const avatarEditBtn = document.querySelector("#popover-avatar-edit");
+  const avatarWrap = document.querySelector("#popover-avatar-wrap");
+  const avatarRemoveBtn = document.querySelector("#popover-avatar-remove");
+
+  avatarWrap?.addEventListener("click", (event) => {
+    if (event.target === avatarInput) return;
+    avatarInput?.click();
+  });
+
+  avatarInput?.addEventListener("change", async () => {
+    const file = avatarInput.files?.[0];
+    avatarInput.value = "";
+    if (!file) return;
+    const toastFn = currentAccountConfig.showToast || (() => {});
+    const apiFn = currentAccountConfig.api || window.fetch;
+    if (avatarEditBtn) avatarEditBtn.disabled = true;
+    try {
+      const avatarDataUrl = await resizeAvatarImage(file);
+      const data = await apiFn("/api/accounts/avatar", {
+        method: "POST",
+        body: JSON.stringify({ avatarDataUrl }),
+      });
+      const result = typeof data?.json === "function" ? await data.json() : data;
+      currentUser = { ...(currentUser || {}), avatarUrl: result?.avatarUrl || avatarDataUrl };
+      applyUserAvatars(currentUser);
+      toastFn("Profile picture updated.");
+    } catch (error) {
+      toastFn(error.message || "Could not update profile picture.");
+    } finally {
+      if (avatarEditBtn) avatarEditBtn.disabled = false;
+    }
+  });
+
+  avatarRemoveBtn?.addEventListener("click", async () => {
+    const ok = await confirmDialog({
+      title: "Remove profile photo?",
+      message: "Your Daylight avatar will go back to showing your initial letter.",
+      confirmText: "Remove photo",
+      cancelText: "Keep photo",
+      danger: true,
+    });
+    if (!ok) return;
+    const toastFn = currentAccountConfig.showToast || (() => {});
+    const apiFn = currentAccountConfig.api || window.fetch;
+    try {
+      await apiFn("/api/accounts/avatar", { method: "DELETE" });
+      currentUser = { ...(currentUser || {}), avatarUrl: null };
+      applyUserAvatars(currentUser);
+      toastFn("Profile photo removed.");
+    } catch (error) {
+      toastFn(error.message || "Could not remove profile photo.");
+    }
+  });
+
   document.addEventListener("pointerdown", (event) => {
+    if (event.target?.closest?.("#daylight-confirm-backdrop")) return;
     const menuWrap = document.querySelector(".account-menu-wrap");
     if (menuWrap && !menuWrap.contains(event.target)) setAccountPopover(false);
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setAccountPopover(false);
+    if (event.key !== "Escape") return;
+    const confirmBackdrop = document.querySelector("#daylight-confirm-backdrop");
+    if (confirmBackdrop && !confirmBackdrop.hidden) {
+      confirmBackdrop.hidden = true;
+      if (activeConfirmResolve) {
+        const done = activeConfirmResolve;
+        activeConfirmResolve = null;
+        done(false);
+      }
+      return;
+    }
+    setAccountPopover(false);
   });
 
   document.querySelector("#switch-account-button")?.addEventListener("click", () => {
@@ -205,7 +416,14 @@ function initAccountPopover(user, { api, showToast, activeAuth, onSwitchAccount,
       await currentAccountConfig.onSignOutAll();
       return;
     }
-    if (!window.confirm("Sign out this Daylight account on all devices and browsers?")) return;
+    const ok = await confirmDialog({
+      title: "Sign out of all accounts?",
+      message: "This will sign out this Daylight account on all devices and browsers.",
+      confirmText: "Sign out",
+      cancelText: "Cancel",
+      danger: true,
+    });
+    if (!ok) return;
     const apiFn = currentAccountConfig.api || window.fetch;
     try {
       await apiFn("/api/auth/logout-all", { method: "POST", body: JSON.stringify({}) });
@@ -222,6 +440,7 @@ window.DaylightAccount = {
   refreshAccountMenu,
   setAccountPopover,
   switchAccountTo,
+  confirmDialog,
   initAccountPopover
 };
 })();
